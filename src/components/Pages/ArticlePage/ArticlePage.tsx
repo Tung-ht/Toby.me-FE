@@ -34,6 +34,7 @@ import {
   updateAuthor,
   updateCommentBody,
 } from './ArticlePage.slice';
+import { ArticlePageBannerStyled, ArticlePageStyled } from './ArticlePageStyled';
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -52,26 +53,51 @@ export function ArticlePage() {
 
   return article.match({
     none: () => <div className='container page'>Đang tải bài viết ...</div>,
-    some: (article) => (
-      <div className='article-page'>
-        <ArticlePageBanner {...{ article, metaSection, user }} />
+    some: (article) => {
+      console.log('🚀 -> ArticlePage -> article:', article);
 
-        <div className='container page'>
-          <div className='row article-content'>
-            <div className='col-md-12'>{article.body}</div>
-            <TagList tagList={article.tagList} />
+      return (
+        <ArticlePageStyled className='article-page'>
+          <div className='container page'>
+            <img
+              src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
+              alt=''
+              className=' thumbs-article-page'
+            />
           </div>
 
-          <hr />
+          <div className='container wrapper-content'>
+            <div className='wrapper-content-left'>
+              <ArticleMeta {...{ article, metaSection, user }} />
 
-          <div className='article-actions'>
-            <ArticleMeta {...{ article, metaSection, user }} />
+              <TagList tagList={article.tagList} />
+            </div>
+
+            <div className='wrapper-content-right'>
+              {/* <ArticlePageBanner {...{ article, metaSection, user }} /> */}
+
+              <div className='article-date'>{format(article.createdAt, 'PP')}</div>
+
+              <h1>{article.title}</h1>
+
+              <div className='article-description'>{article.description}</div>
+
+              <div className='row article-content'>
+                <div className='col-md-12' dangerouslySetInnerHTML={{ __html: article.body }}></div>
+              </div>
+            </div>
           </div>
 
-          <CommentSection {...{ user, commentSection, article }} />
-        </div>
-      </div>
-    ),
+          <div className='container page'>
+            <hr />
+
+            <div className='article-actions'></div>
+
+            <CommentSection {...{ user, commentSection, article }} />
+          </div>
+        </ArticlePageStyled>
+      );
+    },
   });
 }
 
@@ -91,13 +117,13 @@ async function onLoad(slug: string) {
 
 function ArticlePageBanner(props: { article: Article; metaSection: MetaSectionState; user: Option<User> }) {
   return (
-    <div className='banner'>
-      <div className='container'>
-        <h1>{props.article.title}</h1>
-
+    <ArticlePageBannerStyled>
+      <div className=''>
         <ArticleMeta {...props} />
+
+        <h1>{props.article.title}</h1>
       </div>
-    </div>
+    </ArticlePageBannerStyled>
   );
 }
 
@@ -144,7 +170,6 @@ function ArticleAuthorInfo({
         <Link className='author' to={`/profile/${username}`}>
           {username}
         </Link>
-        <span className='date'>{format(createdAt, 'PP')}</span>
       </div>
     </Fragment>
   );

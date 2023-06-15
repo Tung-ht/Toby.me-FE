@@ -7,12 +7,13 @@ import { ArticlesViewer } from '../../ArticlesViewer/ArticlesViewer';
 import { changePage, loadArticles, startLoadingArticles } from '../../ArticlesViewer/ArticlesViewer.slice';
 import { ContainerPage } from '../../ContainerPage/ContainerPage';
 import { changeTab, loadTags, startLoadingTags } from './Home.slice';
+import { styled } from 'styled-components';
 
 export function Home() {
   const { tags, selectedTab } = useStoreWithInitializer(({ home }) => home, load);
 
   return (
-    <div className='home-page'>
+    <HomePageStyled className='home-page'>
       {renderBanner()}
       <ContainerPage>
         <div className='col-md-9'>
@@ -29,7 +30,7 @@ export function Home() {
           <HomeSidebar tags={tags} />
         </div>
       </ContainerPage>
-    </div>
+    </HomePageStyled>
   );
 }
 
@@ -113,3 +114,7 @@ function HomeSidebar({ tags }: { tags: Option<string[]> }) {
     </div>
   );
 }
+
+const HomePageStyled = styled.div`
+  background-color: #f0f2f5;
+`;
