@@ -1,28 +1,35 @@
 import axios from 'axios';
 import { Fragment } from 'react';
 import { HashRouter, Redirect, Route, RouteProps, Switch } from 'react-router-dom';
+import NotificationsSystem, { atalhoTheme, useNotifications } from 'reapop';
 import { getUser } from '../../services/services';
 import { store } from '../../state/store';
 import { useStoreWithInitializer } from '../../state/storeHooks';
-import { EditArticle } from '../Pages/EditArticle/EditArticle';
 import { Footer } from '../Footer/Footer';
 import { Header } from '../Header/Header';
+import { ArticlePage } from '../Pages/ArticlePage/ArticlePage';
+import { EditArticle } from '../Pages/EditArticle/EditArticle';
 import { Home } from '../Pages/Home/Home';
 import { Login } from '../Pages/Login/Login';
 import { NewArticle } from '../Pages/NewArticle/NewArticle';
+import { ProfilePage } from '../Pages/ProfilePage/ProfilePage';
 import { Register } from '../Pages/Register/Register';
 import { Settings } from '../Pages/Settings/Settings';
 import { endLoad, loadUser } from './App.slice';
-import { ProfilePage } from '../Pages/ProfilePage/ProfilePage';
-import { ArticlePage } from '../Pages/ArticlePage/ArticlePage';
 
 export function App() {
   const { loading, user } = useStoreWithInitializer(({ app }) => app, load);
+  const { notifications, dismissNotification } = useNotifications();
 
   const userIsLogged = user.isSome();
 
   return (
     <HashRouter>
+      <NotificationsSystem
+        notifications={notifications}
+        dismissNotification={(id) => dismissNotification(id)}
+        theme={atalhoTheme}
+      />
       {!loading && (
         <Fragment>
           <Header />

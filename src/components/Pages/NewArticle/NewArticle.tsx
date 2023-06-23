@@ -1,32 +1,45 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Container, TextField } from '@material-ui/core';
-import { useState } from 'react';
+import { Button, CircularProgress, Container, LinearProgress, TextField } from '@material-ui/core';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactQuill from 'react-quill';
-import { styled } from 'styled-components';
 import * as yup from 'yup';
 import { createArticle } from '../../../services/services';
 import { ArticleForEditor } from '../../../types/article';
+import { modulesEditor } from '../../../config/modulesEditor';
+import { ArticleEditorStyled } from '../../../styles/ArticleEditorStyled';
+import useToastCustom from '../../../hooks/useToastCustom';
+
 const schema = yup
   .object({
     title: yup.string().required('Tiêu đề không được bỏ trống'),
     description: yup.string().required('Mô tả bài viết không được bỏ trống'),
+    body: yup.string().required('Nội dung bài viết không được bỏ trống'),
   })
   .required();
 
+export const initErrorBody = { status: false, content: '' };
+
 export function NewArticle() {
   const [value, setValue] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const { notifySuccess, notifyError } = useToastCustom();
 
   const {
     register,
     handleSubmit,
+    setValue: setValueForm,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
   const onSubmit = async (data: any) => {
+    setLoading(true);
+
     const params: ArticleForEditor = {
       title: data.title,
       body: value,
@@ -39,27 +52,50 @@ export function NewArticle() {
 
       result.match({
         err: (errors) => {
-          console.log('🚀 -> onSubmit -> errors:', errors);
+          console.log('errors', errors);
+
+          if (errors?.title) {
+            notifyError('Tạo bài viết thất bại');
+
+            setError('title', { type: 'custom', message: errors.title.join(', ') });
+          }
         },
         ok: ({ slug }) => {
+          notifySuccess('Thành công', 'Tạo bài viết thành công');
           location.hash = `#/article/${slug}`;
         },
       });
     } catch (error) {
       console.log('🚀 -> onSubmit -> error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Container>
-      <NewArticleStyled>
+      <ArticleEditorStyled>
+        {loading && <LinearProgress />}
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div>Tiêu đề: </div>
-          <TextField margin='dense' size='small' fullWidth {...register('title')} variant='outlined' />
-          <p>{errors?.title?.message}</p>
-
-          <div>Mô tả bài viết: </div>
+          <div className='input-label'>
+            Tiêu đề:<span className='input-label__required'>*</span>{' '}
+          </div>
           <TextField
+            className='input-editor'
+            margin='dense'
+            size='small'
+            fullWidth
+            {...register('title')}
+            variant='outlined'
+            disabled={loading}
+          />
+          <p className='error-article-editor'>{errors?.title?.message}</p>
+
+          <div className='input-label'>
+            Mô tả bài viết:<span className='input-label__required'>*</span>{' '}
+          </div>
+          <TextField
+            className='input-editor'
             margin='dense'
             size='small'
             fullWidth
@@ -67,34 +103,36 @@ export function NewArticle() {
             minRows={3}
             {...register('description')}
             variant='outlined'
+            disabled={loading}
           />
-          <p>{errors?.description?.message}</p>
+          <p className='error-article-editor'>{errors?.description?.message}</p>
 
-          <div>Nội dung bài viết: </div>
-          <ReactQuill theme='snow' className='quill-editor' value={value} onChange={setValue} />
+          <div className='input-label'>
+            Nội dung bài viết:<span className='input-label__required'>*</span>{' '}
+          </div>
+          <ReactQuill
+            modules={{ ...modulesEditor }}
+            theme='snow'
+            className='quill-editor'
+            value={value}
+            onChange={(value) => {
+              setValueForm('body', value);
+              setValue(value);
+            }}
+            readOnly={loading}
+          />
+          <p className='error-article-editor'>{errors?.body?.message}</p>
 
           <div className='container-button'>
-            <input type='submit' />
+            <Button className='editor-submit' variant='contained' disabled={loading} color='primary' type='submit'>
+              Tạo bài viết
+            </Button>
           </div>
         </form>
-      </NewArticleStyled>
+      </ArticleEditorStyled>
     </Container>
   );
 }
-
-const NewArticleStyled = styled.div`
-  width: 100%;
-
-  .quill-editor {
-    .ql-container {
-      min-height: 500px;
-    }
-  }
-
-  .container-button {
-    margin-top: 12px;
-  }
-`;
 
 // import { FormEvent, useEffect } from 'react';
 // import { createArticle } from '../../../services/services';
