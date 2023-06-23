@@ -14,7 +14,7 @@ export function EditArticle() {
     _loadArticle(slug);
   }, [slug]);
 
-  return <Fragment>{!loading && <ArticleEditor onSubmit={onSubmit(slug)} />}</Fragment>;
+  return <Fragment>{<ArticleEditor loading={loading} slug={slug} />}</Fragment>;
 }
 
 async function _loadArticle(slug: string) {
