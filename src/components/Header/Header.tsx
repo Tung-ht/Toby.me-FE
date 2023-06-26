@@ -3,12 +3,13 @@ import { HashRouter, NavLink } from 'react-router-dom';
 import { useStore } from '../../state/storeHooks';
 import { User } from '../../types/user';
 import logo from '../../imgs/tobyme.png';
+import { HeaderStyled } from './HeaderStyled';
 
 export function Header() {
   const { user } = useStore(({ app }) => app);
 
   return (
-    <nav className='navbar navbar-light'>
+    <HeaderStyled className='navbar navbar-light'>
       <div className='container'>
         <a className='navbar-brand' style={{ marginRight: '0' }} href='/#/'>
           Toby.me
@@ -16,7 +17,7 @@ export function Header() {
         <img src={logo} style={{ height: '40px', width: '40px' }} />
         <ul className='nav navbar-nav pull-xs-right'>
           <HashRouter>
-            <NavItem text='Trang chính' href='/' />
+            <NavItem text='Trang chính' icon='ion-home' href='/' />
 
             {user.match({
               none: () => <GuestLinks />,
@@ -25,7 +26,7 @@ export function Header() {
           </HashRouter>
         </ul>
       </div>
-    </nav>
+    </HeaderStyled>
   );
 }
 
@@ -43,8 +44,8 @@ function NavItem({ text, href, icon }: { text: string; href: string; icon?: stri
 function GuestLinks() {
   return (
     <Fragment>
-      <NavItem text='Đăng nhập' href='/login' />
-      <NavItem text='Đăng kí' href='/register' />
+      <NavItem text='Đăng nhập' href='/login' icon='ion-log-in' />
+      <NavItem text='Đăng ký' href='/register' icon='ion-wand' />
     </Fragment>
   );
 }

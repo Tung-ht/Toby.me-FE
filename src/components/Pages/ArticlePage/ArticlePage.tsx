@@ -293,7 +293,7 @@ function CommentSection({
         {user.match({
           none: () => (
             <p style={{ display: 'inherit' }}>
-              <Link to='/login'>Đăng nhập</Link> hoặc <Link to='/register'>Đăng kí</Link> để bình luận bài viết này.
+              <Link to='/login'>Đăng nhập</Link> hoặc <Link to='/register'>Đăng ký</Link> để bình luận bài viết này.
             </p>
           ),
           some: (user) => (
