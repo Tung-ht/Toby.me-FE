@@ -115,6 +115,7 @@ export function Login() {
               fullWidth
               variant='outlined'
               placeholder='Email'
+              label='Email'
               {...register('email')}
               className='input-auth'
             />
@@ -123,6 +124,7 @@ export function Login() {
             <TextField
               fullWidth
               variant='outlined'
+              label='Mật khẩu'
               placeholder='Mật khẩu'
               {...register('password')}
               type='password'
@@ -137,6 +139,7 @@ export function Login() {
                 color='primary'
                 className='btn-auth'
                 type='submit'
+                disabled={loading}
               >
                 Đăng nhập
               </Button>

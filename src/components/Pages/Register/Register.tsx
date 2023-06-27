@@ -116,7 +116,7 @@ export function Register() {
       setStep(STEP.CONFIRM);
       confirmReset();
       console.log('🚀 -> onSubmit -> user:', user);
-      // onSignUp(user);
+      onSignUp(user);
     }
   };
 
@@ -155,6 +155,7 @@ export function Register() {
                 <TextField
                   fullWidth
                   variant='outlined'
+                  label='Tên hiển thị'
                   placeholder='Tên hiển thị'
                   className='input-auth'
                   {...register('username')}
@@ -164,6 +165,7 @@ export function Register() {
                 <TextField
                   fullWidth
                   variant='outlined'
+                  label='Email'
                   placeholder='Email'
                   className='input-auth'
                   {...register('email')}
@@ -172,7 +174,9 @@ export function Register() {
 
                 <TextField
                   fullWidth
+                  type='password'
                   variant='outlined'
+                  label='Mật khẩu'
                   placeholder='Mật khẩu'
                   className='input-auth'
                   {...register('password')}
@@ -203,6 +207,7 @@ export function Register() {
               </Button>
               <TextField
                 fullWidth
+                label='Email'
                 variant='outlined'
                 className='input-auth'
                 disabled
@@ -225,6 +230,7 @@ export function Register() {
                   variant='outlined'
                   className='input-auth'
                   type='number'
+                  label='OTP code'
                   placeholder='OTP code'
                   {...confirmRegister('otp', {
                     onChange: (e) => {

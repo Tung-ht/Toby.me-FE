@@ -1,7 +1,12 @@
 import { styled } from 'styled-components';
 
 export const ArticleEditorStyled = styled.div`
+  margin-top: 20px;
   width: 100%;
+
+  .loading-article {
+    margin: 20px 0px;
+  }
 
   .input-editor {
     margin: 0px;
