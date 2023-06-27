@@ -1,13 +1,7 @@
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
 
-interface SkeletonArticleEditorProps {
-  loading: boolean;
-}
-
-function SkeletonArticleEditor({ loading }: SkeletonArticleEditorProps) {
-  if (!loading) return <></>;
-
+function SkeletonArticleEditor() {
   return (
     <>
       <Skeleton variant='text' height={80} />

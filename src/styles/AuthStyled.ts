@@ -2,8 +2,9 @@ import { styled } from 'styled-components';
 
 export const AuthStyled = styled.div`
   .input-auth {
-    input {
-      font-size: 18px;
+    input,
+    textarea {
+      font-size: 18px !important;
       font-weight: 500;
     }
   }

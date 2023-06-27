@@ -10,6 +10,7 @@ import { ArticleForEditor } from '../../../types/article';
 import { modulesEditor } from '../../../config/modulesEditor';
 import { ArticleEditorStyled } from '../../../styles/ArticleEditorStyled';
 import useToastCustom from '../../../hooks/useToastCustom';
+import { useHistory } from 'react-router-dom';
 
 const schema = yup
   .object({
@@ -26,6 +27,7 @@ export function NewArticle() {
   const [loading, setLoading] = useState(false);
 
   const { notifySuccess, notifyError } = useToastCustom();
+  const history = useHistory();
 
   const {
     register,
@@ -62,11 +64,11 @@ export function NewArticle() {
         },
         ok: ({ slug }) => {
           notifySuccess('Thành công', 'Tạo bài viết thành công');
-          location.hash = `#/article/${slug}`;
+          history.push(`/article/${slug}`);
         },
       });
     } catch (error) {
-      console.log('🚀 -> onSubmit -> error:', error);
+      notifyError('Tạo bài viết thất bại');
     } finally {
       setLoading(false);
     }
@@ -75,7 +77,7 @@ export function NewArticle() {
   return (
     <Container>
       <ArticleEditorStyled>
-        {loading && <LinearProgress />}
+        {loading && <LinearProgress className='loading-article' />}
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='input-label'>
             Tiêu đề:<span className='input-label__required'>*</span>{' '}
@@ -124,7 +126,13 @@ export function NewArticle() {
           <p className='error-article-editor'>{errors?.body?.message}</p>
 
           <div className='container-button'>
-            <Button className='editor-submit' variant='contained' disabled={loading} color='primary' type='submit'>
+            <Button
+              className='editor-submit'
+              variant='contained'
+              disabled={loading}
+              color='primary'
+              type='submit'
+            >
               Tạo bài viết
             </Button>
           </div>

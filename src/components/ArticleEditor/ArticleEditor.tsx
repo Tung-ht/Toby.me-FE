@@ -1,22 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Button, Container, LinearProgress, TextField } from '@material-ui/core';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import ReactQuill from 'react-quill';
+import { useHistory } from 'react-router-dom';
+import * as yup from 'yup';
+import { modulesEditor } from '../../config/modulesEditor';
+import useToastCustom from '../../hooks/useToastCustom';
+import { updateArticle } from '../../services/services';
 import { store } from '../../state/store';
 import { useStore } from '../../state/storeHooks';
-import { buildGenericFormField } from '../../types/genericFormField';
-import { ContainerPage } from '../ContainerPage/ContainerPage';
-import { GenericForm } from '../GenericForm/GenericForm';
-import { addTag, EditorState, removeTag, updateField } from './ArticleEditor.slice';
-import { styled } from 'styled-components';
-import { Button, Container, TextField } from '@material-ui/core';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import ReactQuill from 'react-quill';
-import { modulesEditor } from '../../config/modulesEditor';
-import { ArticleForEditor } from '../../types/article';
-import { tryCatch } from 'ramda';
-import { updateArticle } from '../../services/services';
 import { ArticleEditorStyled } from '../../styles/ArticleEditorStyled';
+import { ArticleForEditor } from '../../types/article';
+import SkeletonArticleEditor from '../Common/SkeletonArticleEditor';
+import { EditorState, addTag, removeTag, updateField } from './ArticleEditor.slice';
 
 const schema = yup
   .object({
@@ -32,20 +30,23 @@ interface ArticleEditorProps {
 
 export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
   const { article, submitting, tag, errors } = useStore(({ editor }) => editor);
-
+  const { notifySuccess, notifyError } = useToastCustom();
   const [value, setValue] = useState('');
+  const history = useHistory();
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue: setValueForm,
+    setError,
     formState: { errors: errorsForm },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
   const onSubmitForm = async (data: any) => {
-    console.log('🚀 -> onSubmit -> data:', data);
+    setLoadingUpdate(true);
     const params: ArticleForEditor = {
       title: data.title,
       body: value,
@@ -58,14 +59,17 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
 
       result.match({
         err: (errors) => {
-          console.log('🚀 -> onSubmitForm -> errors:', errors);
+          notifyError('Lưu bài viết thất bại');
+          setError('title', { type: 'custom', message: errors.title.join(', ') });
         },
         ok: ({ slug }) => {
-          location.hash = `#/article/${slug}`;
+          history.push(`/article/${slug}`);
         },
       });
     } catch (error) {
-      console.log('🚀 -> onSubmitForm -> error:', error);
+      notifyError('Lưu bài viết thất bại');
+    } finally {
+      setLoadingUpdate(false);
     }
   };
 
@@ -78,46 +82,54 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
   return (
     <Container>
       <ArticleEditorStyled>
-        <form onSubmit={handleSubmit(onSubmitForm)}>
-          <div className='input-label'>Tiêu đề: </div>
-          <TextField
-            className='input-editor'
-            margin='dense'
-            size='small'
-            fullWidth
-            {...register('title')}
-            variant='outlined'
-          />
-          <p className='error-article-editor'>{errorsForm?.title?.message}</p>
+        {loadingUpdate && <LinearProgress className='loading-article' />}
 
-          <div className='input-label'>Mô tả bài viết: </div>
-          <TextField
-            className='input-editor'
-            margin='dense'
-            size='small'
-            fullWidth
-            multiline
-            minRows={3}
-            {...register('description')}
-            variant='outlined'
-          />
-          <p className='error-article-editor'>{errorsForm?.description?.message}</p>
+        {loading ? (
+          <>
+            <SkeletonArticleEditor />
+          </>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmitForm)}>
+            <div className='input-label'>Tiêu đề: </div>
+            <TextField
+              className='input-editor'
+              margin='dense'
+              size='small'
+              fullWidth
+              {...register('title')}
+              variant='outlined'
+            />
+            <p className='error-article-editor'>{errorsForm?.title?.message}</p>
 
-          <div className='input-label'>Nội dung bài viết: </div>
-          <ReactQuill
-            modules={{ ...modulesEditor }}
-            theme='snow'
-            className='quill-editor'
-            value={value}
-            onChange={setValue}
-          />
+            <div className='input-label'>Mô tả bài viết: </div>
+            <TextField
+              className='input-editor'
+              margin='dense'
+              size='small'
+              fullWidth
+              multiline
+              minRows={3}
+              {...register('description')}
+              variant='outlined'
+            />
+            <p className='error-article-editor'>{errorsForm?.description?.message}</p>
 
-          <div className='container-button'>
-            <Button className='editor-submit' variant='contained' color='primary' type='submit'>
-              Lưu bài viết
-            </Button>
-          </div>
-        </form>
+            <div className='input-label'>Nội dung bài viết: </div>
+            <ReactQuill
+              modules={{ ...modulesEditor }}
+              theme='snow'
+              className='quill-editor'
+              value={value}
+              onChange={setValue}
+            />
+
+            <div className='container-button'>
+              <Button className='editor-submit' variant='contained' color='primary' type='submit'>
+                Lưu bài viết
+              </Button>
+            </div>
+          </form>
+        )}
       </ArticleEditorStyled>
     </Container>
 
