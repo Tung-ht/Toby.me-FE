@@ -10,8 +10,8 @@ import {
   updateErrors,
   updateField,
 } from './Register.slice';
-import { loadUserIntoApp, UserForRegistration } from '../../../types/user';
-import { signUp } from '../../../services/services';
+import { loadUserIntoApp, RegistrationVerify, UserForRegistration } from '../../../types/user';
+import { registrationVerify, resendOtp, signUp } from '../../../services/services';
 import { ContainerPage } from '../../ContainerPage/ContainerPage';
 import logo from '../../../imgs/tobyme.png';
 import { tryCatch } from 'ramda';
@@ -58,8 +58,9 @@ export function Register() {
     ({ register }) => register,
     dispatchOnCall(initializeRegister())
   );
-  const { notifyError } = useToastCustom();
+  const { notifyError, notifySuccess } = useToastCustom();
   const history = useHistory();
+  const [loading, setLoading] = useState(false);
 
   // confirm otp
   const [step, setStep] = useState(STEP.REGISTER);
@@ -88,18 +89,25 @@ export function Register() {
 
   async function onSignUp(user: UserForRegistration) {
     try {
-      const result = await signUp(user);
+      setLoading(true);
+      const response = await signUp(user);
 
-      result.match({
-        err: (e) => store.dispatch(updateErrors(e)),
-        ok: (user) => {
-          // history.push('/');
-          // handle verify
-        },
-      });
-    } catch (error) {
-      notifyError('Đăng ký thất bại', 'Hãy thử lại');
-      history.push('/register');
+      if (response.status === 200) {
+        const { data } = response;
+        setEmailConfirm(data?.user?.email);
+        setStep(STEP.CONFIRM);
+        confirmReset();
+        return;
+      }
+    } catch (error: any) {
+      const er = error?.response?.data?.errors?.body;
+      if (er) {
+        notifyError('Đăng ký thất bại', er.join(', '));
+      } else {
+        notifyError('Đăng ký thất bại');
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -112,23 +120,45 @@ export function Register() {
         password: data.password,
         username: data.username,
       };
-      setEmailConfirm(user.email);
-      setStep(STEP.CONFIRM);
-      confirmReset();
-      console.log('🚀 -> onSubmit -> user:', user);
+
       onSignUp(user);
     }
   };
 
   const onSubmitConfirmOTP = async (data: any) => {
-    console.log('🚀 -> onSubmitConfirmOTP -> data:', data);
+    try {
+      setLoading(true);
+      const user: RegistrationVerify = {
+        email: emailConfirm,
+        otp: data.otp,
+      };
+      const result = await registrationVerify(user);
+      notifySuccess('Xác nhận thành công', 'Hãy đăng nhập và bắt đầu viết bài');
+      history.push('/login');
+    } catch (error) {
+      notifyError('Xác nhận đăng ký', 'Hãy thử lại');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      setLoading(true);
+      const result = await resendOtp(emailConfirm);
+      notifySuccess('Thành công', '');
+    } catch (error) {
+      notifyError('Thấy bại', 'Hãy thử lại');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AuthStyled className='auth-page'>
       <ContainerPage>
         <div className='col-md-6 offset-md-3 col-xs-12'>
-          <LinearProgress />
+          {loading && <LinearProgress />}
           <div className='text-xs-center'>
             <img src={logo} style={{ height: '150px', width: '150px' }} />
           </div>
@@ -228,7 +258,7 @@ export function Register() {
                 <TextField
                   fullWidth
                   variant='outlined'
-                  className='input-auth'
+                  className='input-auth input-number'
                   type='number'
                   label='OTP code'
                   placeholder='OTP code'
@@ -247,6 +277,7 @@ export function Register() {
                     size='large'
                     color='primary'
                     className='btn-auth btn-auth__outlined'
+                    onClick={handleResendOtp}
                   >
                     Gửi lại OTP
                   </Button>

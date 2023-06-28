@@ -33,6 +33,16 @@ export interface UserForRegistration {
   password: string;
 }
 
+export interface RegistrationVerify {
+  email: string;
+  otp: string;
+}
+
+export enum ActionRegistration {
+  VERIFY_EMAIL = 'VERIFY_EMAIL',
+  RESET_PASSWORD = 'RESET_PASSWORD',
+}
+
 export function loadUserIntoApp(user: User) {
   localStorage.setItem('token', user.token);
   axios.defaults.headers.Authorization = `Token ${user.token}`;
