@@ -9,6 +9,14 @@ export const AuthStyled = styled.div`
     }
   }
 
+  .input-number {
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+
   .error-auth {
     color: #ff0000;
     padding-left: 12px;
