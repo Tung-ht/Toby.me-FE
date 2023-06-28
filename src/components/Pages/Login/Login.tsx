@@ -23,6 +23,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { styled } from 'styled-components';
 import { AuthStyled } from '../../../styles/AuthStyled';
+import LayoutAuth from '../../LayoutAuth';
 
 const schema = yup
   .object({
@@ -85,12 +86,12 @@ export function Login() {
   };
 
   return (
-    <AuthStyled className='auth-page'>
-      <ContainerPage>
-        <div className='col-md-6 offset-md-3 col-xs-12'>
+    <LayoutAuth>
+      <AuthStyled className='auth-page'>
+        <div className=''>
           {loading && <LinearProgress />}
 
-          <div className='text-xs-center'>
+          {/* <div className='text-xs-center'>
             <img src={logo} style={{ height: '150px', width: '150px' }} />
           </div>
           <div
@@ -103,7 +104,7 @@ export function Login() {
             }}
           >
             Toby.me
-          </div>
+          </div> */}
           <br />
           <h1 className='text-xs-center'>Đăng nhập</h1>
           <p className='text-xs-center'>
@@ -163,8 +164,8 @@ export function Login() {
             ]}
           /> */}
         </div>
-      </ContainerPage>
-    </AuthStyled>
+      </AuthStyled>
+    </LayoutAuth>
   );
 }
 

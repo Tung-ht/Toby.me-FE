@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import LayoutAuth from '../../LayoutAuth';
 
 const schema = yup
   .object({
@@ -155,11 +156,11 @@ export function Register() {
   };
 
   return (
-    <AuthStyled className='auth-page'>
-      <ContainerPage>
-        <div className='col-md-6 offset-md-3 col-xs-12'>
+    <LayoutAuth>
+      <AuthStyled className='auth-page'>
+        <div className=''>
           {loading && <LinearProgress />}
-          <div className='text-xs-center'>
+          {/* <div className='text-xs-center'>
             <img src={logo} style={{ height: '150px', width: '150px' }} />
           </div>
           <div
@@ -172,13 +173,12 @@ export function Register() {
             }}
           >
             Toby.me
-          </div>
+          </div> */}
           <br />
           <h1 className='text-xs-center'>{step.title}</h1>
           <p className='text-xs-center'>
             <Link to='/login'>Đã có tài khoản?</Link>
           </p>
-
           {step.value === STEP.REGISTER.value && (
             <>
               <form onSubmit={handleSubmit(onSubmitRegister)} id='register'>
@@ -191,7 +191,6 @@ export function Register() {
                   {...register('username')}
                 />
                 <p className='error-auth'>{errorsRegisterForm?.username?.message}</p>
-
                 <TextField
                   fullWidth
                   variant='outlined'
@@ -201,7 +200,6 @@ export function Register() {
                   {...register('email')}
                 />
                 <p className='error-auth'>{errorsRegisterForm?.email?.message}</p>
-
                 <TextField
                   fullWidth
                   type='password'
@@ -212,7 +210,6 @@ export function Register() {
                   {...register('password')}
                 />
                 <p className='error-auth'>{errorsRegisterForm?.password?.message}</p>
-
                 <div className='wrapper-btn-auth'>
                   <Button
                     variant='contained'
@@ -227,9 +224,7 @@ export function Register() {
               </form>
             </>
           )}
-
           {/* step 2 */}
-
           {step.value === STEP.CONFIRM.value && (
             <>
               <Button color='primary' className='btn-auth' onClick={() => setStep(STEP.REGISTER)}>
@@ -243,7 +238,6 @@ export function Register() {
                 disabled
                 value={emailConfirm}
               />
-
               <div className='auth-note'>
                 Một mã OTP vào địa chỉ email của bạn. Để tiếp tục quá trình đăng ký, vui lòng truy
                 cập vào hộp thư đến của bạn và lấy mã OTP. Sau khi nhận được mã, hãy quay lại trang
@@ -253,7 +247,6 @@ export function Register() {
                 thư mục "Thư rác" hoặc "Spam" của bạn. Đôi khi, email có thể bị nhầm vào thư mục
                 này.
               </div>
-
               <form onSubmit={confirmHandleSubmit(onSubmitConfirmOTP)} id='confirm-otp'>
                 <TextField
                   fullWidth
@@ -270,7 +263,6 @@ export function Register() {
                   })}
                 />
                 <p className='error-auth'>{errorsConfirmForm?.otp?.message}</p>
-
                 <div className='wrapper-btn-auth'>
                   <Button
                     variant='outlined'
@@ -281,7 +273,6 @@ export function Register() {
                   >
                     Gửi lại OTP
                   </Button>
-
                   <Button
                     variant='contained'
                     size='large'
@@ -295,31 +286,30 @@ export function Register() {
               </form>
             </>
           )}
-
           {/* <hr />
-          <GenericForm
-            disabled={signingUp}
-            formObject={user as unknown as Record<string, string>}
-            submitButtonText='Đăng ký'
-            errors={errors}
-            onChange={onUpdateField}
-            onSubmit={onSignUp(user)}
-            fields={[
-              buildGenericFormField({
-                name: 'username',
-                placeholder: 'Tên hiển thị',
-              }),
-              buildGenericFormField({ name: 'email', placeholder: 'Email' }),
-              buildGenericFormField({
-                name: 'password',
-                placeholder: 'Mật khẩu',
-                type: 'password',
-              }),
-            ]}
-          /> */}
+            <GenericForm
+              disabled={signingUp}
+              formObject={user as unknown as Record<string, string>}
+              submitButtonText='Đăng ký'
+              errors={errors}
+              onChange={onUpdateField}
+              onSubmit={onSignUp(user)}
+              fields={[
+                buildGenericFormField({
+                  name: 'username',
+                  placeholder: 'Tên hiển thị',
+                }),
+                buildGenericFormField({ name: 'email', placeholder: 'Email' }),
+                buildGenericFormField({
+                  name: 'password',
+                  placeholder: 'Mật khẩu',
+                  type: 'password',
+                }),
+              ]}
+            /> */}
         </div>
-      </ContainerPage>
-    </AuthStyled>
+      </AuthStyled>
+    </LayoutAuth>
   );
 }
 
