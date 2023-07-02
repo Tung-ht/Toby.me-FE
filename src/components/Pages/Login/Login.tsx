@@ -64,9 +64,12 @@ export function Login() {
           loadUserIntoApp(user);
         },
         err: (e) => {
-          console.log('🚀 -> signIn -> e:', e);
-          // store.dispatch(updateErrors(e));
-          notifyError('Đăng nhập thất bại', 'Hãy thử lại');
+          const errorList = e?.body;
+          if (errorList) {
+            notifyError('Đăng nhập thất bại', errorList.join(', '));
+          } else {
+            notifyError('Đăng nhập thất bại', 'Hãy thử lại');
+          }
         },
       });
     } catch (error) {

@@ -54,8 +54,6 @@ export function ArticlePage() {
   return article.match({
     none: () => <div className='container page'>Đang tải bài viết ...</div>,
     some: (article) => {
-      console.log('🚀 -> ArticlePage -> article:', article);
-
       return (
         <ArticlePageStyled className='article-page'>
           <div className='container page'>
@@ -115,7 +113,11 @@ async function onLoad(slug: string) {
   }
 }
 
-function ArticlePageBanner(props: { article: Article; metaSection: MetaSectionState; user: Option<User> }) {
+function ArticlePageBanner(props: {
+  article: Article;
+  metaSection: MetaSectionState;
+  user: Option<User>;
+}) {
   return (
     <ArticlePageBannerStyled>
       <div className=''>
@@ -256,7 +258,10 @@ function OwnerArticleMetaActions({
 }) {
   return (
     <Fragment>
-      <button className='btn btn-outline-secondary btn-sm' onClick={() => redirect(`editor/${slug}`)}>
+      <button
+        className='btn btn-outline-secondary btn-sm'
+        onClick={() => redirect(`editor/${slug}`)}
+      >
         <i className='ion-plus-round'></i>
         &nbsp; Chỉnh sửa bài viết
       </button>
@@ -293,7 +298,8 @@ function CommentSection({
         {user.match({
           none: () => (
             <p style={{ display: 'inherit' }}>
-              <Link to='/login'>Đăng nhập</Link> hoặc <Link to='/register'>Đăng ký</Link> để bình luận bài viết này.
+              <Link to='/login'>Đăng nhập</Link> hoặc <Link to='/register'>Đăng ký</Link> để bình
+              luận bài viết này.
             </p>
           ),
           some: (user) => (
@@ -311,7 +317,13 @@ function CommentSection({
           some: (comments) => (
             <Fragment>
               {comments.map((comment, index) => (
-                <ArticleComment key={comment.id} comment={comment} slug={article.slug} user={user} index={index} />
+                <ArticleComment
+                  key={comment.id}
+                  comment={comment}
+                  slug={article.slug}
+                  user={user}
+                  index={index}
+                />
               ))}
             </Fragment>
           ),

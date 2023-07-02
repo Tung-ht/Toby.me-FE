@@ -1,6 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Container, LinearProgress, TextField } from '@material-ui/core';
+import {
+  Button,
+  Chip,
+  CircularProgress,
+  Container,
+  FormControl,
+  Input,
+  LinearProgress,
+  MenuItem,
+  Select,
+  TextField,
+  Checkbox,
+  ListItemText,
+} from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactQuill from 'react-quill';
@@ -8,18 +21,21 @@ import { useHistory } from 'react-router-dom';
 import * as yup from 'yup';
 import { modulesEditor } from '../../config/modulesEditor';
 import useToastCustom from '../../hooks/useToastCustom';
-import { updateArticle } from '../../services/services';
+import { getTagsDropdown, updateArticle } from '../../services/services';
 import { store } from '../../state/store';
 import { useStore } from '../../state/storeHooks';
 import { ArticleEditorStyled } from '../../styles/ArticleEditorStyled';
 import { ArticleForEditor } from '../../types/article';
 import SkeletonArticleEditor from '../Common/SkeletonArticleEditor';
 import { EditorState, addTag, removeTag, updateField } from './ArticleEditor.slice';
+import { MenuPropsUtils } from '../../config/menuPropsSelectMultiple';
 
 const schema = yup
   .object({
     title: yup.string().required('Tiêu đề không được bỏ trống'),
     description: yup.string().required('Mô tả bài viết không được bỏ trống'),
+    body: yup.string().required('Nội dung bài viết không được bỏ trống'),
+    tagList: yup.array(),
   })
   .required();
 
@@ -34,6 +50,9 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
   const [value, setValue] = useState('');
   const history = useHistory();
   const [loadingUpdate, setLoadingUpdate] = useState(false);
+
+  const [tags, setTags] = useState([]);
+  const [tagsSelected, setTagsSelected] = useState<any>([]);
 
   const {
     register,
@@ -50,9 +69,10 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
     const params: ArticleForEditor = {
       title: data.title,
       body: value,
-      tagList: [],
+      tagList: data.tagList,
       description: data.description,
     };
+    console.log('🚀 -> onSubmitForm -> params:', params);
 
     try {
       const result = await updateArticle(slug, params);
@@ -63,7 +83,8 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
           setError('title', { type: 'custom', message: errors.title.join(', ') });
         },
         ok: ({ slug }) => {
-          history.push(`/article/${slug}`);
+          notifySuccess('Lưu bài viết thành công');
+          history.push(`/article/${encodeURIComponent(slug)}`);
         },
       });
     } catch (error) {
@@ -73,15 +94,40 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
     }
   };
 
+  const onChangeTags = (event: any) => {
+    setTagsSelected(event.target.value);
+  };
+
+  const handleGetTags = async () => {
+    try {
+      const {
+        data: { tags },
+      } = await getTagsDropdown();
+      setTags(tags);
+    } catch (error: any) {
+      console.log('🚀 -> error:', error);
+    }
+  };
+
   useEffect(() => {
+    handleGetTags();
+
     setValueForm('title', article.title);
     setValueForm('description', article.description);
+    setValueForm('body', article.body);
+    setValueForm('tagList', article.tagList);
+
     setValue(article.body);
+    setTagsSelected(article.tagList);
   }, [article]);
 
   return (
     <Container>
       <ArticleEditorStyled>
+        <div className='d-flex justify-content-center'>
+          <h2>Chỉnh sửa bài viết</h2>
+        </div>
+
         {loadingUpdate && <LinearProgress className='loading-article' />}
 
         {loading ? (
@@ -90,7 +136,9 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
           </>
         ) : (
           <form onSubmit={handleSubmit(onSubmitForm)}>
-            <div className='input-label'>Tiêu đề: </div>
+            <div className='input-label'>
+              Tiêu đề:<span className='input-label__required'>*</span>{' '}
+            </div>
             <TextField
               className='input-editor'
               margin='dense'
@@ -101,7 +149,9 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
             />
             <p className='error-article-editor'>{errorsForm?.title?.message}</p>
 
-            <div className='input-label'>Mô tả bài viết: </div>
+            <div className='input-label'>
+              Mô tả bài viết:<span className='input-label__required'>*</span>{' '}
+            </div>
             <TextField
               className='input-editor'
               margin='dense'
@@ -114,14 +164,48 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
             />
             <p className='error-article-editor'>{errorsForm?.description?.message}</p>
 
-            <div className='input-label'>Nội dung bài viết: </div>
+            <div className='input-label'>Tags:</div>
+            <Select
+              id='multiple-tags'
+              multiple
+              fullWidth
+              variant='outlined'
+              {...register('tagList')}
+              value={tagsSelected}
+              onChange={onChangeTags}
+              MenuProps={MenuPropsUtils}
+              renderValue={(selected) => (
+                <div className='d-flex flex-wrap'>
+                  {(selected as string[]).map((value) => (
+                    <Chip key={value} label={value} className='m-1' />
+                  ))}
+                </div>
+              )}
+            >
+              {tags.map((name, index) => (
+                <MenuItem key={index} value={name}>
+                  <Checkbox checked={tagsSelected.indexOf(name) > -1} />
+                  <ListItemText primary={name} />
+                </MenuItem>
+              ))}
+            </Select>
+            <p></p>
+
+            <div className='input-label'>
+              Nội dung bài viết:<span className='input-label__required'>*</span>{' '}
+            </div>
             <ReactQuill
               modules={{ ...modulesEditor }}
               theme='snow'
               className='quill-editor'
               value={value}
-              onChange={setValue}
+              onChange={(value) => {
+                setValueForm('body', value);
+                setValue(value);
+              }}
+              readOnly={loading}
             />
+            <p className='error-article-editor'>{errorsForm?.body?.message}</p>
 
             <div className='container-button'>
               <Button className='editor-submit' variant='contained' color='primary' type='submit'>

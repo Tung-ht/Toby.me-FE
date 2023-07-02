@@ -28,6 +28,7 @@ export const ArticleEditorStyled = styled.div`
   .quill-editor {
     .ql-container {
       min-height: 500px;
+      font-size: 16px;
     }
   }
 
