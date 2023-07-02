@@ -1,6 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, CircularProgress, Container, LinearProgress, TextField } from '@material-ui/core';
+import {
+  Button,
+  Chip,
+  CircularProgress,
+  Container,
+  FormControl,
+  Input,
+  LinearProgress,
+  MenuItem,
+  Select,
+  TextField,
+  Checkbox,
+  ListItemText,
+} from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactQuill from 'react-quill';
@@ -22,9 +35,33 @@ const schema = yup
 
 export const initErrorBody = { status: false, content: '' };
 
+const names = [
+  'Oliver Hansen',
+  'Van Henry',
+  'April Tucker',
+  'Ralph Hubbard',
+  'Omar Alexander',
+  'Carlos Abbott',
+  'Miriam Wagner',
+  'Bradley Wilkerson',
+  'Virginia Andrews',
+  'Kelly Snyder',
+];
+
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: 250,
+      width: 250,
+    },
+  },
+};
+
 export function NewArticle() {
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [tagsSelected, setTagsSelected] = useState<any>([]);
 
   const { notifySuccess, notifyError } = useToastCustom();
   const history = useHistory();
@@ -74,6 +111,11 @@ export function NewArticle() {
     }
   };
 
+  const onChangeTags = (event: any) => {
+    setTagsSelected(event.target.value);
+    console.log('🚀 -> onChangeTags -> event.target.value:', event.target.value);
+  };
+
   return (
     <Container>
       <ArticleEditorStyled>
@@ -108,6 +150,33 @@ export function NewArticle() {
             disabled={loading}
           />
           <p className='error-article-editor'>{errors?.description?.message}</p>
+
+          <div className='input-label'>
+            Tags:<span className='input-label__required'>*</span>{' '}
+          </div>
+          <Select
+            fullWidth
+            multiple
+            variant='outlined'
+            value={tagsSelected}
+            onChange={onChangeTags}
+            // MenuProps={MenuProps}
+            renderValue={(selected) => (
+              <div className='d-flex flex-wrap'>
+                {(selected as string[]).map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </div>
+            )}
+          >
+            {names.map((name) => (
+              <MenuItem key={name} value={name}>
+                <Checkbox checked={tagsSelected.indexOf(name) > -1} />
+                <ListItemText primary={name} />
+              </MenuItem>
+            ))}
+          </Select>
+          <p></p>
 
           <div className='input-label'>
             Nội dung bài viết:<span className='input-label__required'>*</span>{' '}

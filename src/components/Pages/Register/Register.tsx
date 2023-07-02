@@ -156,9 +156,9 @@ export function Register() {
   };
 
   return (
-    <LayoutAuth>
-      <AuthStyled className='auth-page'>
-        <div className=''>
+    <AuthStyled className='auth-page'>
+      <ContainerPage>
+        <div className='col-md-6 offset-md-3 col-xs-12'>
           {loading && <LinearProgress />}
           {/* <div className='text-xs-center'>
             <img src={logo} style={{ height: '150px', width: '150px' }} />
@@ -308,8 +308,8 @@ export function Register() {
               ]}
             /> */}
         </div>
-      </AuthStyled>
-    </LayoutAuth>
+      </ContainerPage>
+    </AuthStyled>
   );
 }
 

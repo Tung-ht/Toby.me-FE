@@ -24,6 +24,7 @@ import {
 } from '../types/user';
 
 axios.defaults.baseURL = settings.baseApiUrl;
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'any value';
 
 export async function getArticles(filters: ArticlesFilters = {}): Promise<MultipleArticles> {
   const finalFilters: ArticlesFilters = {

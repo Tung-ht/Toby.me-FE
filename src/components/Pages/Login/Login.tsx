@@ -86,9 +86,9 @@ export function Login() {
   };
 
   return (
-    <LayoutAuth>
-      <AuthStyled className='auth-page'>
-        <div className=''>
+    <AuthStyled className='auth-page'>
+      <ContainerPage>
+        <div className='col-md-6 offset-md-3 col-xs-12'>
           {loading && <LinearProgress />}
 
           {/* <div className='text-xs-center'>
@@ -164,8 +164,8 @@ export function Login() {
             ]}
           /> */}
         </div>
-      </AuthStyled>
-    </LayoutAuth>
+      </ContainerPage>
+    </AuthStyled>
   );
 }
 
