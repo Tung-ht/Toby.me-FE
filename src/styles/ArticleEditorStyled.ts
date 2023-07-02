@@ -1,7 +1,8 @@
 import { styled } from 'styled-components';
 
 export const ArticleEditorStyled = styled.div`
-  margin-top: 20px;
+  max-width: 1000px;
+  margin: 20px auto 0px;
   width: 100%;
 
   .loading-article {
