@@ -56,6 +56,11 @@ export async function login(email: string, password: string): Promise<Result<Use
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getTagsDropdown(): Promise<any> {
+  return await axios.get('tags/drop-down');
+}
+
 export async function getUser(): Promise<User> {
   const { data } = await axios.get('user');
   return guard(object({ user: userDecoder }))(data).user;

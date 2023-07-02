@@ -2,57 +2,44 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Button,
+  Checkbox,
   Chip,
-  CircularProgress,
   Container,
-  FormControl,
-  Input,
   LinearProgress,
+  ListItemText,
   MenuItem,
   Select,
   TextField,
-  Checkbox,
-  ListItemText,
 } from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactQuill from 'react-quill';
-import * as yup from 'yup';
-import { createArticle } from '../../../services/services';
-import { ArticleForEditor } from '../../../types/article';
-import { modulesEditor } from '../../../config/modulesEditor';
-import { ArticleEditorStyled } from '../../../styles/ArticleEditorStyled';
-import useToastCustom from '../../../hooks/useToastCustom';
 import { useHistory } from 'react-router-dom';
+import * as yup from 'yup';
+import { MenuPropsUtils } from '../../../config/menuPropsSelectMultiple';
+import { modulesEditor } from '../../../config/modulesEditor';
+import useToastCustom from '../../../hooks/useToastCustom';
+import { createArticle, getTagsDropdown } from '../../../services/services';
+import { ArticleEditorStyled } from '../../../styles/ArticleEditorStyled';
+import { ArticleForEditor } from '../../../types/article';
 
 const schema = yup
   .object({
     title: yup.string().required('Tiêu đề không được bỏ trống'),
     description: yup.string().required('Mô tả bài viết không được bỏ trống'),
     body: yup.string().required('Nội dung bài viết không được bỏ trống'),
+    tagList: yup.array(),
   })
   .required();
 
 export const initErrorBody = { status: false, content: '' };
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
-
 const MenuProps = {
   PaperProps: {
+    anchorEl: 'multiple-tags',
     style: {
-      maxHeight: 250,
-      width: 250,
+      maxHeight: 300,
+      maxWidth: 250,
     },
   },
 };
@@ -61,6 +48,7 @@ export function NewArticle() {
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [tags, setTags] = useState([]);
   const [tagsSelected, setTagsSelected] = useState<any>([]);
 
   const { notifySuccess, notifyError } = useToastCustom();
@@ -82,7 +70,7 @@ export function NewArticle() {
     const params: ArticleForEditor = {
       title: data.title,
       body: value,
-      tagList: [],
+      tagList: data.tagList,
       description: data.description,
     };
 
@@ -101,7 +89,7 @@ export function NewArticle() {
         },
         ok: ({ slug }) => {
           notifySuccess('Thành công', 'Tạo bài viết thành công');
-          history.push(`/article/${slug}`);
+          history.push(`/article/${encodeURIComponent(slug)}`);
         },
       });
     } catch (error) {
@@ -111,23 +99,40 @@ export function NewArticle() {
     }
   };
 
+  const handleGetTags = async () => {
+    try {
+      const {
+        data: { tags },
+      } = await getTagsDropdown();
+      setTags(tags);
+    } catch (error: any) {
+      console.log('🚀 -> error:', error);
+    }
+  };
+
   const onChangeTags = (event: any) => {
     setTagsSelected(event.target.value);
-    console.log('🚀 -> onChangeTags -> event.target.value:', event.target.value);
   };
+
+  useEffect(() => {
+    handleGetTags();
+  }, []);
 
   return (
     <Container>
       <ArticleEditorStyled>
+        <div className='d-flex justify-content-center'>
+          <h2>Tạo bài viết</h2>
+        </div>
+
         {loading && <LinearProgress className='loading-article' />}
+
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='input-label'>
             Tiêu đề:<span className='input-label__required'>*</span>{' '}
           </div>
           <TextField
             className='input-editor'
-            margin='dense'
-            size='small'
             fullWidth
             {...register('title')}
             variant='outlined'
@@ -140,8 +145,6 @@ export function NewArticle() {
           </div>
           <TextField
             className='input-editor'
-            margin='dense'
-            size='small'
             fullWidth
             multiline
             minRows={3}
@@ -151,26 +154,26 @@ export function NewArticle() {
           />
           <p className='error-article-editor'>{errors?.description?.message}</p>
 
-          <div className='input-label'>
-            Tags:<span className='input-label__required'>*</span>{' '}
-          </div>
+          <div className='input-label'>Tags:</div>
           <Select
-            fullWidth
+            id='multiple-tags'
             multiple
+            fullWidth
             variant='outlined'
+            {...register('tagList')}
             value={tagsSelected}
             onChange={onChangeTags}
-            // MenuProps={MenuProps}
+            MenuProps={MenuPropsUtils}
             renderValue={(selected) => (
               <div className='d-flex flex-wrap'>
                 {(selected as string[]).map((value) => (
-                  <Chip key={value} label={value} />
+                  <Chip key={value} label={value} className='m-1' />
                 ))}
               </div>
             )}
           >
-            {names.map((name) => (
-              <MenuItem key={name} value={name}>
+            {tags.map((name, index) => (
+              <MenuItem key={index} value={name}>
                 <Checkbox checked={tagsSelected.indexOf(name) > -1} />
                 <ListItemText primary={name} />
               </MenuItem>

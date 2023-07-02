@@ -36,7 +36,7 @@ export function ArticlePreview({
       </Link>
 
       <div className='post'>
-        <Link to={`/article/${slug}`} className='title-post'>
+        <Link to={`/article/${encodeURIComponent(slug)}`} className='title-post'>
           <h2>{title}</h2>
         </Link>
 
