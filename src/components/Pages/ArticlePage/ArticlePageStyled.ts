@@ -3,7 +3,7 @@ import { styled } from 'styled-components';
 export const ArticlePageStyled = styled.div`
   .thumbs-article-page {
     width: 100%;
-    border-radius: 12px;
+    border-radius: 4px;
   }
 
   .wrapper-content {

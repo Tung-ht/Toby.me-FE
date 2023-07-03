@@ -1,6 +1,7 @@
 export function Footer() {
   return (
     <footer>
+      <div className='d-flex justify-content-center'>Toby.me</div>
       {/* <div className='container'>
         <a href='/#/' className='logo-font'>
           conduit

@@ -35,7 +35,6 @@ const schema = yup
     title: yup.string().required('Tiêu đề không được bỏ trống'),
     description: yup.string().required('Mô tả bài viết không được bỏ trống'),
     body: yup.string().required('Nội dung bài viết không được bỏ trống'),
-    tagList: yup.array(),
   })
   .required();
 
@@ -69,10 +68,9 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
     const params: ArticleForEditor = {
       title: data.title,
       body: value,
-      tagList: data.tagList,
+      tagList: tagsSelected,
       description: data.description,
     };
-    console.log('🚀 -> onSubmitForm -> params:', params);
 
     try {
       const result = await updateArticle(slug, params);
@@ -115,7 +113,6 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
     setValueForm('title', article.title);
     setValueForm('description', article.description);
     setValueForm('body', article.body);
-    setValueForm('tagList', article.tagList);
 
     setValue(article.body);
     setTagsSelected(article.tagList);
@@ -170,7 +167,6 @@ export function ArticleEditor({ loading, slug }: ArticleEditorProps) {
               multiple
               fullWidth
               variant='outlined'
-              {...register('tagList')}
               value={tagsSelected}
               onChange={onChangeTags}
               MenuProps={MenuPropsUtils}

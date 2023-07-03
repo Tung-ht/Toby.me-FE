@@ -110,14 +110,14 @@ const ArticlePreviewStyled = styled.div`
   padding: 24px;
   padding-bottom: 0px;
   margin-bottom: 20px;
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 
   .thumbs-article {
     height: auto;
     max-width: 100%;
     border: none;
-    border-radius: 12px;
+    border-radius: 4px;
     margin-bottom: 12px;
   }
 
