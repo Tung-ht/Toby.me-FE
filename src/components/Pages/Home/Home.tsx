@@ -4,10 +4,17 @@ import { store } from '../../../state/store';
 import { useStoreWithInitializer } from '../../../state/storeHooks';
 import { FeedFilters } from '../../../types/article';
 import { ArticlesViewer } from '../../ArticlesViewer/ArticlesViewer';
-import { changePage, loadArticles, startLoadingArticles } from '../../ArticlesViewer/ArticlesViewer.slice';
+import {
+  changePage,
+  loadArticles,
+  startLoadingArticles,
+} from '../../ArticlesViewer/ArticlesViewer.slice';
 import { ContainerPage } from '../../ContainerPage/ContainerPage';
 import { changeTab, loadTags, startLoadingTags } from './Home.slice';
 import { styled } from 'styled-components';
+import Skeleton from '@material-ui/lab/Skeleton';
+import Chip from '@material-ui/core/Chip';
+import { TypeAnimation } from 'react-type-animation';
 
 export function Home() {
   const { tags, selectedTab } = useStoreWithInitializer(({ home }) => home, load);
@@ -54,7 +61,26 @@ function renderBanner() {
     <div className='banner'>
       <div className='container'>
         <h1 className='logo-font'>Toby.me</h1>
-        <p>Cùng nhau chia sẻ kiến thức lập trình tới cộng đồng</p>
+        {/* <p>Cùng nhau chia sẻ kiến thức lập trình tới cộng đồng</p> */}
+
+        <p>
+          <TypeAnimation
+            sequence={[
+              'Cùng nhau chia sẻ kiến thức lập trình tới cộng đồng',
+              1000,
+              'Cùng nhau mở rộng kỹ năng, tư duy',
+              1000,
+              'Cùng nhau thảo luận, chia sẻ, và học cùng cộng đồng lập trình',
+              1000,
+              'Cùng nhau truyền đam mê, nâng cao kỹ năng lập trình',
+              1000,
+            ]}
+            speed={40}
+            wrapper='span'
+            cursor={true}
+            repeat={Infinity}
+          />
+        </p>
       </div>
     </div>
   );
@@ -63,7 +89,9 @@ function renderBanner() {
 function buildTabsNames(selectedTab: string) {
   const { user } = store.getState().app;
 
-  return Array.from(new Set([...(user.isSome() ? ['Đang theo dõi'] : []), 'Tất cả bài viết', selectedTab]));
+  return Array.from(
+    new Set([...(user.isSome() ? ['Đang theo dõi'] : []), 'Tất cả bài viết', selectedTab])
+  );
 }
 
 async function onPageChange(index: number) {
@@ -96,18 +124,40 @@ async function getFeedOrGlobalArticles(filters: FeedFilters = {}) {
 function HomeSidebar({ tags }: { tags: Option<string[]> }) {
   return (
     <div className='sidebar'>
-      <p>Chủ đề phổ biến</p>
+      <h5>Chủ đề phổ biến</h5>
 
       {tags.match({
-        none: () => <span>Đang tải chủ đề ...</span>,
+        none: () => (
+          <div>
+            <Skeleton variant='text' height={40} />
+            <Skeleton variant='text' height={40} />
+            <Skeleton variant='text' height={40} />
+          </div>
+        ),
         some: (tags) => (
           <div className='tag-list'>
-            {' '}
-            {tags.map((tag) => (
-              <a key={tag} href='#' className='tag-pill tag-default' onClick={() => onTabChange(`# ${tag}`)}>
-                {tag}
-              </a>
-            ))}{' '}
+            {tags.map((tag) => {
+              return (
+                <Chip
+                  icon={<i className='ion-pound' />}
+                  className='px-2 me-1 mb-1'
+                  size='small'
+                  key={tag}
+                  label={tag}
+                  onClick={() => onTabChange(`# ${tag}`)}
+                />
+              );
+              // return (
+              //   <a
+              //     key={tag}
+              //     href='#'
+              //     className='tag-pill tag-default'
+              //     onClick={() => onTabChange(`# ${tag}`)}
+              //   >
+              //     {tag}
+              //   </a>
+              // );
+            })}
           </div>
         ),
       })}
@@ -117,4 +167,5 @@ function HomeSidebar({ tags }: { tags: Option<string[]> }) {
 
 const HomePageStyled = styled.div`
   background-color: #f0f2f5;
+  min-height: calc(100vh - 88px);
 `;
