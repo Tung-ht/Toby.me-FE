@@ -167,5 +167,5 @@ function HomeSidebar({ tags }: { tags: Option<string[]> }) {
 
 const HomePageStyled = styled.div`
   background-color: #f0f2f5;
-  min-height: calc(100vh - 88px);
+  min-height: calc(100vh - 156px);
 `;

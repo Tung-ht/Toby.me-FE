@@ -28,7 +28,6 @@ const schema = yup
     title: yup.string().required('Tiêu đề không được bỏ trống'),
     description: yup.string().required('Mô tả bài viết không được bỏ trống'),
     body: yup.string().required('Nội dung bài viết không được bỏ trống'),
-    tagList: yup.array(),
   })
   .required();
 
@@ -70,7 +69,7 @@ export function NewArticle() {
     const params: ArticleForEditor = {
       title: data.title,
       body: value,
-      tagList: data.tagList,
+      tagList: tagsSelected,
       description: data.description,
     };
 
@@ -160,7 +159,6 @@ export function NewArticle() {
             multiple
             fullWidth
             variant='outlined'
-            {...register('tagList')}
             value={tagsSelected}
             onChange={onChangeTags}
             MenuProps={MenuPropsUtils}
