@@ -115,7 +115,7 @@ export function Settings() {
     <AuthStyled className='settings-page'>
       <ContainerPage>
         <div className='col-md-6 offset-md-3 col-xs-12'>
-          <LinearProgress />
+          {/* <LinearProgress /> */}
 
           <h1 className='text-xs-center my-3'>Thông tin tài khoản</h1>
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Option } from '@hqoss/monads';
 import { format } from 'date-fns';
 import React, { Fragment, useEffect } from 'react';
@@ -53,15 +54,15 @@ export function ArticlePage() {
 
   return article.match({
     none: () => <div className='container page'>Đang tải bài viết ...</div>,
-    some: (article) => {
+    some: (article: any) => {
       return (
         <ArticlePageStyled className='article-page'>
           <div className='container page'>
-            <img
+            {/* <img
               src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
               alt=''
               className=' thumbs-article-page'
-            />
+            /> */}
           </div>
 
           <div className='container wrapper-content'>

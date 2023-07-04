@@ -23,11 +23,11 @@ export function ArticlePreview({
 }) {
   return (
     <ArticlePreviewStyled>
-      <img
+      {/* <img
         src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
         alt=''
         className='thumbs-article'
-      />
+      /> */}
 
       <Link to={`/profile/${username}`} className='wrapper-author'>
         <img src={image || undefined} className='author-avt' />
@@ -105,13 +105,18 @@ export function TagList({ tagList }: { tagList: string[] }) {
   );
 }
 
-const ArticlePreviewStyled = styled.div`
+export const ArticlePreviewStyled = styled.div`
   background-color: #fff;
   padding: 24px;
   padding-bottom: 0px;
   margin-bottom: 20px;
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+
+  button:focus {
+    outline: none;
+    border: none;
+  }
 
   .thumbs-article {
     height: auto;
@@ -145,7 +150,7 @@ const ArticlePreviewStyled = styled.div`
       border: none;
       background: transparent;
       padding: 4px 12px;
-      font-size: 20px;
+      font-size: 30px;
       color: #a3a3a3;
       transition: all 0.3s ease-in-out;
 
