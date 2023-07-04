@@ -14,10 +14,6 @@ const theme = createTheme({
       // Purple and green play nicely together.
       main: green[500],
     },
-    secondary: {
-      // This is green.A700 as hex.
-      main: '#11cb5f',
-    },
   },
 });
 

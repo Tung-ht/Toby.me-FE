@@ -16,6 +16,7 @@ import { ProfilePage } from '../Pages/ProfilePage/ProfilePage';
 import { Register } from '../Pages/Register/Register';
 import { Settings } from '../Pages/Settings/Settings';
 import { endLoad, loadUser } from './App.slice';
+import ApproveArticle from '../Pages/ApproveArticle';
 
 export function App() {
   const { loading, user } = useStoreWithInitializer(({ app }) => app, load);
@@ -48,6 +49,9 @@ export function App() {
             </UserOnlyRoute>
             <UserOnlyRoute exact path='/editor/:slug' userIsLogged={userIsLogged}>
               <EditArticle />
+            </UserOnlyRoute>
+            <UserOnlyRoute exact path='/approve-article' userIsLogged={userIsLogged}>
+              <ApproveArticle />
             </UserOnlyRoute>
             <Route path='/profile/:username'>
               <ProfilePage />

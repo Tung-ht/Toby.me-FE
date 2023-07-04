@@ -1,9 +1,25 @@
-import { Fragment } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { HashRouter, NavLink } from 'react-router-dom';
 import { useStore } from '../../state/storeHooks';
 import { User } from '../../types/user';
 import logo from '../../imgs/tobyme.png';
 import { HeaderStyled } from './HeaderStyled';
+import {
+  Button,
+  Popper,
+  MenuItem,
+  MenuList,
+  IconButton,
+  ClickAwayListener,
+  makeStyles,
+  createStyles,
+  Divider,
+} from '@material-ui/core';
+import { styled } from 'styled-components';
+import { Theme } from 'reapop';
+import axios from 'axios';
+import { store } from '../../state/store';
+import { logout } from '../App/App.slice';
 
 export function Header() {
   const { user } = useStore(({ app }) => app);
@@ -34,7 +50,7 @@ function NavItem({ text, href, icon }: { text: string; href: string; icon?: stri
   return (
     <li className='nav-item'>
       <NavLink exact to={href} activeClassName='active' className='nav-link'>
-        {icon && <i className={icon}></i>}&nbsp;
+        {icon && <i className={icon} style={{ fontSize: 20 }}></i>}&nbsp;
         {text}
       </NavLink>
     </li>
@@ -50,12 +66,105 @@ function GuestLinks() {
   );
 }
 
-function UserLinks({ user: { username } }: { user: User }) {
+// ==============
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    PopperClass: {
+      background: '#ffffff',
+      boxShadow: 'rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px',
+      borderRadius: 4,
+      zIndex: 1,
+    },
+  })
+);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function UserLinks({ user: { username } }: { user: any }) {
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  const classes = useStyles();
+
+  const [open, setOpen] = useState(false);
+
+  const handleToggle = () => {
+    setOpen((prevOpen) => !prevOpen);
+  };
+
+  const handleClose = (event: React.MouseEvent<EventTarget>) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  function handleListKeyDown(event: React.KeyboardEvent) {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpen(false);
+    }
+  }
+
+  function _logout() {
+    delete axios.defaults.headers.Authorization;
+    localStorage.removeItem('token');
+    store.dispatch(logout());
+    location.hash = '/';
+  }
+
   return (
     <Fragment>
       <NavItem text='Viết bài' href='/editor' icon='ion-compose' />
-      <NavItem text='Tài khoản' href='/settings' icon='ion-gear-a' />
-      <NavItem text={`${username}`} href={`/profile/${username}`} />
+
+      <IconButton
+        ref={anchorRef}
+        aria-controls={open ? 'menu-list-grow' : undefined}
+        aria-haspopup='true'
+        onClick={handleToggle}
+        color='primary'
+        component='span'
+        className='py-1 px-3 ms-2'
+      >
+        <i className='ion-gear-b' style={{ fontSize: 26 }}></i>
+      </IconButton>
+
+      <Popper
+        color='primary'
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        transition
+        disablePortal
+        className={classes.PopperClass}
+      >
+        <ClickAwayListener onClickAway={handleClose}>
+          <MenuList autoFocusItem={open} id='menu-list-grow' onKeyDown={handleListKeyDown}>
+            <MenuItem onClick={handleClose}>
+              <NavItem text='Trang cá nhân' href={`/profile/${username}`} icon='ion-ios-person' />
+            </MenuItem>
+
+            <MenuItem onClick={handleClose}>
+              <NavItem text='Tài khoản' href='/settings' icon='ion-gear-a' />
+            </MenuItem>
+
+            <MenuItem onClick={handleClose}>
+              <NavItem text='Duyệt bài' href='/approve-article' icon='ion-android-done-all' />
+            </MenuItem>
+
+            <Divider />
+
+            <MenuItem
+              onClick={(e) => {
+                handleClose(e);
+                _logout();
+              }}
+            >
+              <div className='nav-link'>
+                <i className='ion-reply-all' style={{ fontSize: 20 }}></i>&nbsp;Đăng xuất
+              </div>
+            </MenuItem>
+          </MenuList>
+        </ClickAwayListener>
+      </Popper>
     </Fragment>
   );
 }
