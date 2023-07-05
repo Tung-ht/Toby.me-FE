@@ -2,11 +2,12 @@ import axios from 'axios';
 import { Fragment } from 'react';
 import { HashRouter, Redirect, Route, RouteProps, Switch } from 'react-router-dom';
 import NotificationsSystem, { atalhoTheme, useNotifications } from 'reapop';
-import { getUser } from '../../services/services';
+import { getUserLogin } from '../../services/services';
 import { store } from '../../state/store';
 import { useStoreWithInitializer } from '../../state/storeHooks';
 import { Footer } from '../Footer/Footer';
 import { Header } from '../Header/Header';
+import ApproveArticle from '../Pages/ApproveArticle';
 import { ArticlePage } from '../Pages/ArticlePage/ArticlePage';
 import { EditArticle } from '../Pages/EditArticle/EditArticle';
 import { Home } from '../Pages/Home/Home';
@@ -16,7 +17,6 @@ import { ProfilePage } from '../Pages/ProfilePage/ProfilePage';
 import { Register } from '../Pages/Register/Register';
 import { Settings } from '../Pages/Settings/Settings';
 import { endLoad, loadUser } from './App.slice';
-import ApproveArticle from '../Pages/ApproveArticle';
 
 export function App() {
   const { loading, user } = useStoreWithInitializer(({ app }) => app, load);
@@ -82,7 +82,7 @@ async function load() {
   axios.defaults.headers.Authorization = `Bearer ${token}`;
 
   try {
-    store.dispatch(loadUser(await getUser()));
+    store.dispatch(loadUser(await getUserLogin(token)));
   } catch {
     store.dispatch(endLoad());
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Err, Ok, Result } from '@hqoss/monads';
 import axios from 'axios';
 import { array, guard, object, string } from 'decoders';
@@ -36,6 +37,22 @@ export async function getArticles(filters: ArticlesFilters = {}): Promise<Multip
     (await axios.get(`articles?${objectToQueryString(finalFilters)}`)).data
   );
 }
+export async function getArticlesUnapproved(
+  filters: ArticlesFilters = {}
+): Promise<MultipleArticles> {
+  const finalFilters: ArticlesFilters = {
+    limit: 10,
+    offset: 0,
+    ...filters,
+  };
+  return guard(multipleArticlesDecoder)(
+    (await axios.get(`articles/unapproved?${objectToQueryString(finalFilters)}`)).data
+  );
+}
+
+export async function approveArticle(slug: string) {
+  return axios.put(`articles/approve/${slug}`);
+}
 
 export async function getTags(): Promise<{ tags: string[] }> {
   const { data } = await axios.get('tags');
@@ -46,14 +63,12 @@ export async function getTags(): Promise<{ tags: string[] }> {
   return guard(object({ tags: array(string) }))(data);
 }
 
-export async function login(email: string, password: string): Promise<Result<User, GenericErrors>> {
-  try {
-    const { data } = await axios.post('users/login', { user: { email, password } });
+export async function login(email: string, password: string): Promise<any> {
+  const { data } = await axios.post('users/login', { user: { email, password } });
 
-    return Ok(guard(object({ user: userDecoder }))(data).user);
-  } catch ({ response: { data } }) {
-    return Err(guard(object({ errors: genericErrorsDecoder }))(data).errors);
-  }
+  return data;
+
+  // return Ok(guard(object({ user: userDecoder }))(data).user);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,6 +76,13 @@ export async function getTagsDropdown(): Promise<any> {
   return await axios.get('tags/drop-down');
 }
 
+export async function getUserLogin(token: string): Promise<User> {
+  const { data } = await axios.get('user');
+
+  data.user.token = token;
+
+  return guard(object({ user: userDecoder }))(data).user;
+}
 export async function getUser(): Promise<User> {
   const { data } = await axios.get('user');
   return guard(object({ user: userDecoder }))(data).user;
