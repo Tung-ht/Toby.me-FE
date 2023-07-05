@@ -1,17 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button } from '@material-ui/core';
+import { Button, Chip } from '@material-ui/core';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { styled } from 'styled-components';
-import { approveArticle, getArticlesUnapproved } from '../../../services/services';
+import { approveArticle, getArticlesUnapproved, getTags } from '../../../services/services';
 import { ArticlePreviewStyled, TagList } from '../../ArticlePreview/ArticlePreview';
+import { Skeleton } from '@material-ui/lab';
+import { ArticlesFilters } from '../../../types/article';
+import { Pagination } from '../../Pagination/Pagination';
+import { id } from 'date-fns/locale';
+import { ADMIN } from '../../../config/role';
+import { User } from '../../../types/user';
+import { useStore } from '../../../state/storeHooks';
+
+const initQuery: ArticlesFilters = {
+  limit: 10,
+  offset: 0,
+  // tag: '',
+};
 
 function ApproveArticle() {
   const [articles, setArticles] = useState<any[]>([]);
 
+  const [query, setQuery] = useState(initQuery);
+
+  const { user } = useStore(({ app }) => app);
+  const userRole = user.map((x: User) => x.roles).unwrap();
+
   const handleGetArticle = async () => {
-    const rs = await getArticlesUnapproved();
+    const rs = await getArticlesUnapproved(query);
 
     setArticles(rs.articles);
     console.log('🚀 -> handleGetArticle -> rs:', rs);
@@ -22,8 +40,28 @@ function ApproveArticle() {
     console.log('🚀 -> handleApproveArticle -> rs:', rs);
   };
 
+  const handleChangeTabs = (tag: string) => {
+    if (tag === 'ALL') {
+      const queryTmp = { limit: query.limit, offset: query.offset };
+      setQuery(queryTmp);
+      return;
+    }
+    const queryTmp = { ...query, tag: tag };
+    setQuery(queryTmp);
+  };
+
+  const onPageChange = (page: any) => {
+    console.log('🚀 -> onPageChange -> page:', page);
+  };
+
   useEffect(() => {
     handleGetArticle();
+  }, [query]);
+
+  useEffect(() => {
+    if (userRole.includes(ADMIN) === false) {
+      location.hash = '/';
+    }
   }, []);
 
   return (
@@ -33,10 +71,10 @@ function ApproveArticle() {
       </div>
 
       <div className='wrapper-articles row justify-content-center'>
-        {articles.map((ar: any, index: number) => {
-          return (
-            <div key={index} className='col-md-9'>
-              <ArticlePreviewStyled>
+        <div className='col-md-9'>
+          {articles.map((ar: any, index: number) => {
+            return (
+              <ArticlePreviewStyled key={index}>
                 <img
                   src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
                   alt=''
@@ -74,11 +112,75 @@ function ApproveArticle() {
                 </div>
                 <TagList tagList={ar?.tagList} />
               </ArticlePreviewStyled>
-            </div>
-          );
-        })}
+            );
+          })}
+
+          {/* <Pagination currentPage={1} count={100} itemsPerPage={10} onPageChange={onPageChange} /> */}
+        </div>
+
+        <div className='col-md-3'>
+          <HomeSidebar handleChangeTabs={handleChangeTabs} />
+        </div>
       </div>
     </ApproveArticleStyled>
+  );
+}
+
+function HomeSidebar({ handleChangeTabs }: { handleChangeTabs: (tab: string) => void }) {
+  const [loading, setLoading] = useState(false);
+
+  const [tags, setTags] = useState([]);
+
+  const [tagSelect, setTagSelect] = useState('ALL');
+
+  const handleGetTags = async () => {
+    try {
+      setLoading(true);
+      const rs: any = await getTags();
+      const tagList: any = ['ALL', ...rs.tags];
+      setTags(tagList);
+    } catch (error) {
+      console.log('🚀 error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleGetTags();
+  }, []);
+
+  return (
+    <div className='sidebar'>
+      <h5>Duyệt theo tags</h5>
+
+      {loading ? (
+        <div>
+          <Skeleton variant='text' height={40} />
+          <Skeleton variant='text' height={40} />
+          <Skeleton variant='text' height={40} />
+        </div>
+      ) : (
+        <div className='tag-list'>
+          {tags.map((tag) => {
+            return (
+              <Chip
+                icon={<i className='ion-pound' />}
+                className='px-2 me-1 mb-1'
+                size='small'
+                key={tag}
+                label={tag}
+                color={tagSelect === tag ? 'primary' : 'default'}
+                onClick={() => {
+                  handleChangeTabs(tag);
+                  setTagSelect(tag);
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 

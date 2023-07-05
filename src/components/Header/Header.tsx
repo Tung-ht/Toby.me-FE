@@ -20,6 +20,7 @@ import { Theme } from 'reapop';
 import axios from 'axios';
 import { store } from '../../state/store';
 import { logout } from '../App/App.slice';
+import { ADMIN } from '../../config/role';
 
 export function Header() {
   const { user } = useStore(({ app }) => app);
@@ -80,6 +81,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function UserLinks({ user: { username } }: { user: any }) {
+  const { user } = useStore(({ app }) => app);
+  const userRole = user.isSome() && user.map((x) => x.roles).unwrap();
+
   const anchorRef = useRef<HTMLButtonElement>(null);
   const classes = useStyles();
 
@@ -159,19 +163,21 @@ function UserLinks({ user: { username } }: { user: any }) {
               </div>
             </MenuItem>
 
-            <MenuItem onClick={handleClose}>
-              <div className='nav-item'>
-                <NavLink
-                  exact
-                  to={`/approve-article`}
-                  activeClassName='active'
-                  className='nav-link'
-                >
-                  <i className={'ion-android-done-all'} style={{ fontSize: 20 }}></i>&nbsp; Duyệt
-                  bài
-                </NavLink>
-              </div>
-            </MenuItem>
+            {userRole && userRole.includes(ADMIN) && (
+              <MenuItem onClick={handleClose}>
+                <div className='nav-item'>
+                  <NavLink
+                    exact
+                    to={`/approve-article`}
+                    activeClassName='active'
+                    className='nav-link'
+                  >
+                    <i className={'ion-android-done-all'} style={{ fontSize: 20 }}></i>&nbsp; Duyệt
+                    bài
+                  </NavLink>
+                </div>
+              </MenuItem>
+            )}
 
             <Divider />
 
