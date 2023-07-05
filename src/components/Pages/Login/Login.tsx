@@ -1,29 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
-import { login } from '../../../services/services';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Button, LinearProgress, TextField } from '@material-ui/core';
+import jwt_decode from 'jwt-decode';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useHistory } from 'react-router-dom';
+import * as yup from 'yup';
+import useToastCustom from '../../../hooks/useToastCustom';
+import { getUserLogin, login } from '../../../services/services';
 import { dispatchOnCall, store } from '../../../state/store';
 import { useStoreWithInitializer } from '../../../state/storeHooks';
-import { loadUserIntoApp } from '../../../types/user';
-import { buildGenericFormField } from '../../../types/genericFormField';
-import { GenericForm } from '../../GenericForm/GenericForm';
-import {
-  initializeLogin,
-  LoginState,
-  startLoginIn,
-  updateErrors,
-  updateField,
-} from './Login.slice';
-import { ContainerPage } from '../../ContainerPage/ContainerPage';
-import logo from '../../../imgs/tobyme.png';
-import useToastCustom from '../../../hooks/useToastCustom';
-import { Link, useHistory } from 'react-router-dom';
-import { Button, LinearProgress, TextField } from '@material-ui/core';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { styled } from 'styled-components';
 import { AuthStyled } from '../../../styles/AuthStyled';
-import LayoutAuth from '../../LayoutAuth';
+import { loadUserIntoApp } from '../../../types/user';
+import { loadUser } from '../../App/App.slice';
+import { ContainerPage } from '../../ContainerPage/ContainerPage';
+import { initializeLogin } from './Login.slice';
 
 const schema = yup
   .object({
@@ -56,24 +47,48 @@ export function Login() {
     try {
       if (store.getState().login.loginIn) return;
 
-      const result = await login(email, password);
+      const token = await login(email, password);
 
-      result.match({
-        ok: (user) => {
-          history.push('/');
-          loadUserIntoApp(user);
-        },
-        err: (e) => {
-          const errorList = e?.body;
-          if (errorList) {
-            notifyError('Đăng nhập thất bại', errorList.join(', '));
-          } else {
-            notifyError('Đăng nhập thất bại', 'Hãy thử lại');
-          }
-        },
-      });
-    } catch (error) {
-      notifyError('Đăng nhập thất bại', 'Hãy thử lại');
+      const resultDecoded: any = await jwt_decode(token);
+
+      const user = {
+        token: token,
+        email: resultDecoded.sub,
+        username: '',
+        bio: '',
+        image: '',
+        roles: [],
+      };
+
+      loadUserIntoApp(user);
+
+      store.dispatch(loadUser(await getUserLogin(token)));
+
+      history.push('/');
+
+      // const rs = Ok(user);
+      // console.log('🚀 -> signIn -> rs:', rs);
+
+      // rs.match({
+      //   ok: (user) => {
+      //   },
+      //   err: (e: any) => {
+      //     const errorList = e?.body;
+      //     if (errorList) {
+      //       notifyError('Đăng nhập thất bại', errorList.join(', '));
+      //     } else {
+      //       notifyError('Đăng nhập thất bại', 'Hãy thử lại');
+      //     }
+      //   },
+      // });
+    } catch (error: any) {
+      console.log('🚀 -> signIn -> error:', error);
+      const errorList = error?.response?.data?.errors?.body;
+      if (errorList) {
+        notifyError('Đăng nhập thất bại', errorList.join(', '));
+      } else {
+        notifyError('Đăng nhập thất bại', 'Hãy thử lại');
+      }
       history.push('/login');
     } finally {
       setLoading(false);

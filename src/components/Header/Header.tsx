@@ -139,15 +139,38 @@ function UserLinks({ user: { username } }: { user: any }) {
         <ClickAwayListener onClickAway={handleClose}>
           <MenuList autoFocusItem={open} id='menu-list-grow' onKeyDown={handleListKeyDown}>
             <MenuItem onClick={handleClose}>
-              <NavItem text='Trang cá nhân' href={`/profile/${username}`} icon='ion-ios-person' />
+              <div className='nav-item'>
+                <NavLink
+                  exact
+                  to={`/profile/${username}`}
+                  activeClassName='active'
+                  className='nav-link'
+                >
+                  <i className={'ion-ios-person'} style={{ fontSize: 20 }}></i>&nbsp; Trang cá nhân
+                </NavLink>
+              </div>
             </MenuItem>
 
             <MenuItem onClick={handleClose}>
-              <NavItem text='Tài khoản' href='/settings' icon='ion-gear-a' />
+              <div className='nav-item'>
+                <NavLink exact to={`/settings`} activeClassName='active' className='nav-link'>
+                  <i className={'ion-gear-a'} style={{ fontSize: 20 }}></i>&nbsp; Tài khoản
+                </NavLink>
+              </div>
             </MenuItem>
 
             <MenuItem onClick={handleClose}>
-              <NavItem text='Duyệt bài' href='/approve-article' icon='ion-android-done-all' />
+              <div className='nav-item'>
+                <NavLink
+                  exact
+                  to={`/approve-article`}
+                  activeClassName='active'
+                  className='nav-link'
+                >
+                  <i className={'ion-android-done-all'} style={{ fontSize: 20 }}></i>&nbsp; Duyệt
+                  bài
+                </NavLink>
+              </div>
             </MenuItem>
 
             <Divider />

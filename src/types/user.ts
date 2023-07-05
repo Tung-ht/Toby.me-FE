@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Decoder, nullable, object, string } from 'decoders';
+import { Decoder, array, nullable, object, string } from 'decoders';
 import { loadUser } from '../components/App/App.slice';
 import { store } from '../state/store';
 
@@ -12,6 +12,7 @@ export interface PublicUser {
 export interface User extends PublicUser {
   email: string;
   token: string;
+  roles: string[];
 }
 
 export const userDecoder: Decoder<User> = object({
@@ -20,6 +21,7 @@ export const userDecoder: Decoder<User> = object({
   username: string,
   bio: nullable(string),
   image: nullable(string),
+  roles: array(string),
 });
 
 export interface UserSettings extends PublicUser {
