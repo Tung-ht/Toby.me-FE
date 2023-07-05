@@ -1,22 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
-import { getArticles } from '../../../services/services';
-import { ArticlePreviewStyled, TagList } from '../../ArticlePreview/ArticlePreview';
-import { Link } from 'react-router-dom';
-import { Article } from '../../../types/article';
+import { Button } from '@material-ui/core';
 import { format } from 'date-fns';
-import { Button, Grid } from '@material-ui/core';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { styled } from 'styled-components';
-import { ContainerPage } from '../../ContainerPage/ContainerPage';
+import { approveArticle, getArticlesUnapproved } from '../../../services/services';
+import { ArticlePreviewStyled, TagList } from '../../ArticlePreview/ArticlePreview';
 
 function ApproveArticle() {
   const [articles, setArticles] = useState<any[]>([]);
 
   const handleGetArticle = async () => {
-    const rs = await getArticles();
+    const rs = await getArticlesUnapproved();
 
     setArticles(rs.articles);
     console.log('🚀 -> handleGetArticle -> rs:', rs);
+  };
+
+  const handleApproveArticle = async (slug: string) => {
+    const rs = await approveArticle(slug);
+    console.log('🚀 -> handleApproveArticle -> rs:', rs);
   };
 
   useEffect(() => {
@@ -55,7 +58,12 @@ function ApproveArticle() {
                   </div>
 
                   <div className='py-2'>
-                    <Button variant='contained' color='primary' className='me-2'>
+                    <Button
+                      variant='contained'
+                      color='primary'
+                      className='me-2'
+                      onClick={() => handleApproveArticle(encodeURIComponent(ar?.slug))}
+                    >
                       Phê duyệt
                     </Button>
 

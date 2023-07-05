@@ -37,6 +37,22 @@ export async function getArticles(filters: ArticlesFilters = {}): Promise<Multip
     (await axios.get(`articles?${objectToQueryString(finalFilters)}`)).data
   );
 }
+export async function getArticlesUnapproved(
+  filters: ArticlesFilters = {}
+): Promise<MultipleArticles> {
+  const finalFilters: ArticlesFilters = {
+    limit: 10,
+    offset: 0,
+    ...filters,
+  };
+  return guard(multipleArticlesDecoder)(
+    (await axios.get(`articles/unapproved?${objectToQueryString(finalFilters)}`)).data
+  );
+}
+
+export async function approveArticle(slug: string) {
+  return axios.put(`articles/approve/${slug}`);
+}
 
 export async function getTags(): Promise<{ tags: string[] }> {
   const { data } = await axios.get('tags');
