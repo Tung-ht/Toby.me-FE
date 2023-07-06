@@ -97,7 +97,7 @@ function buildTabsNames(selectedTab: string) {
 async function onPageChange(index: number) {
   store.dispatch(changePage(index));
 
-  const multipleArticles = await getFeedOrGlobalArticles({ offset: (index - 1) * 10 });
+  const multipleArticles = await getFeedOrGlobalArticles({ offset: index - 1 });
   store.dispatch(loadArticles(multipleArticles));
 }
 

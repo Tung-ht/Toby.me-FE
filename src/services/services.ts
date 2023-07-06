@@ -18,6 +18,7 @@ import { objectToQueryString } from '../types/object';
 import { Profile, profileDecoder } from '../types/profile';
 import {
   RegistrationVerify,
+  UpdateUserSettings,
   User,
   userDecoder,
   UserForRegistration,
@@ -102,13 +103,9 @@ export async function unfavoriteArticle(slug: string): Promise<Article> {
   ).article;
 }
 
-export async function updateSettings(user: UserSettings): Promise<Result<User, GenericErrors>> {
-  try {
-    const { data } = await axios.put('user', user);
-    return Ok(guard(object({ user: userDecoder }))(data).user);
-  } catch ({ data }) {
-    return Err(guard(object({ errors: genericErrorsDecoder }))(data).errors);
-  }
+export async function updateSettings(user: UpdateUserSettings): Promise<any> {
+  const { data } = await axios.put('user', { user });
+  return data;
 }
 
 export async function signUp(user: UserForRegistration) {
@@ -116,11 +113,11 @@ export async function signUp(user: UserForRegistration) {
 }
 
 export async function registrationVerify(user: RegistrationVerify) {
-  return await axios.post('users/registration/verify', { user });
+  return await axios.post('users/verify?action=VERIFY_EMAIL', { user });
 }
 
 export async function resendOtp(email: string) {
-  return await axios.post(`users/resend-otp?action=VERIFY_EMAIL&email=${email}`);
+  return await axios.post(`users/send-otp?action=VERIFY_EMAIL&email=${email}`);
 }
 
 export async function createArticle(
