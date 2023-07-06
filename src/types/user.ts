@@ -29,6 +29,10 @@ export interface UserSettings extends PublicUser {
   password: string | null;
 }
 
+export interface UpdateUserSettings extends PublicUser {
+  email: string;
+}
+
 export interface UserForRegistration {
   username: string;
   email: string;

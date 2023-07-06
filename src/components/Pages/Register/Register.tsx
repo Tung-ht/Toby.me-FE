@@ -158,7 +158,7 @@ export function Register() {
   return (
     <AuthStyled className='auth-page'>
       <ContainerPage>
-        <div className='col-md-6 offset-md-3 col-xs-12'>
+        <div className='col-md-6 offset-md-3 col-xs-12 pb-4  wrapper-auth'>
           {loading && <LinearProgress />}
           {/* <div className='text-xs-center'>
             <img src={logo} style={{ height: '150px', width: '150px' }} />

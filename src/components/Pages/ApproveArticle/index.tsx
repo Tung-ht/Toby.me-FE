@@ -7,12 +7,13 @@ import { styled } from 'styled-components';
 import { approveArticle, getArticlesUnapproved, getTags } from '../../../services/services';
 import { ArticlePreviewStyled, TagList } from '../../ArticlePreview/ArticlePreview';
 import { Skeleton } from '@material-ui/lab';
-import { ArticlesFilters } from '../../../types/article';
+import { Article, ArticlesFilters } from '../../../types/article';
 import { Pagination } from '../../Pagination/Pagination';
 import { id } from 'date-fns/locale';
 import { ADMIN } from '../../../config/role';
 import { User } from '../../../types/user';
 import { useStore } from '../../../state/storeHooks';
+import SingleArticleApprove from './SingleArticleApprove';
 
 const initQuery: ArticlesFilters = {
   limit: 10,
@@ -26,18 +27,12 @@ function ApproveArticle() {
   const [query, setQuery] = useState(initQuery);
 
   const { user } = useStore(({ app }) => app);
-  const userRole = user.map((x: User) => x.roles).unwrap();
 
   const handleGetArticle = async () => {
     const rs = await getArticlesUnapproved(query);
 
     setArticles(rs.articles);
     console.log('🚀 -> handleGetArticle -> rs:', rs);
-  };
-
-  const handleApproveArticle = async (slug: string) => {
-    const rs = await approveArticle(slug);
-    console.log('🚀 -> handleApproveArticle -> rs:', rs);
   };
 
   const handleChangeTabs = (tag: string) => {
@@ -59,6 +54,8 @@ function ApproveArticle() {
   }, [query]);
 
   useEffect(() => {
+    const userRole = user && user.map((x: User) => x.roles).unwrap();
+
     if (userRole.includes(ADMIN) === false) {
       location.hash = '/';
     }
@@ -72,47 +69,9 @@ function ApproveArticle() {
 
       <div className='wrapper-articles row justify-content-center'>
         <div className='col-md-9'>
-          {articles.map((ar: any, index: number) => {
-            return (
-              <ArticlePreviewStyled key={index}>
-                <img
-                  src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
-                  alt=''
-                  className='thumbs-article'
-                />
-                <Link to={`/profile/${ar?.author?.username}`} className='wrapper-author'>
-                  <img src={ar?.author?.image || undefined} className='author-avt' />
-                  <h5 className='author-name'>{ar?.author?.username}</h5>
-                </Link>
-                <div className='post'>
-                  <Link to={`/article/${encodeURIComponent(ar?.slug)}`} className='title-post'>
-                    <h2>{ar?.title}</h2>
-                  </Link>
-                  <p>{ar?.description}</p>
-                </div>
-                <div className='container-info'>
-                  <div className='info-list'>
-                    <div className='info-item'>{format(ar?.createdAt, 'PP')}</div>
-                  </div>
-
-                  <div className='py-2'>
-                    <Button
-                      variant='contained'
-                      color='primary'
-                      className='me-2'
-                      onClick={() => handleApproveArticle(encodeURIComponent(ar?.slug))}
-                    >
-                      Phê duyệt
-                    </Button>
-
-                    <Button variant='contained' color='secondary'>
-                      Từ chối
-                    </Button>
-                  </div>
-                </div>
-                <TagList tagList={ar?.tagList} />
-              </ArticlePreviewStyled>
-            );
+          {articles.map((ar: Article, index: number) => {
+            console.log('🚀 -> {articles.map -> ar:', ar);
+            return <SingleArticleApprove key={index} data={ar}></SingleArticleApprove>;
           })}
 
           {/* <Pagination currentPage={1} count={100} itemsPerPage={10} onPageChange={onPageChange} /> */}

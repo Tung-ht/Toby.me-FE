@@ -1,6 +1,16 @@
 import { styled } from 'styled-components';
 
 export const AuthStyled = styled.div`
+  background: #f0f2f5;
+  margin-top: -24px;
+
+  .wrapper-auth {
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 4px;
+    margin-top: 30px;
+    background: #ffffff;
+  }
+
   .input-auth {
     input,
     textarea {

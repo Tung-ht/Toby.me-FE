@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, LinearProgress, TextField } from '@material-ui/core';
 import axios from 'axios';
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { updateSettings } from '../../../services/services';
 import { store } from '../../../state/store';
@@ -10,11 +12,7 @@ import { AuthStyled } from '../../../styles/AuthStyled';
 import { UserSettings } from '../../../types/user';
 import { loadUser, logout } from '../../App/App.slice';
 import { ContainerPage } from '../../ContainerPage/ContainerPage';
-import { SettingsState, startUpdate, updateErrors, updateField } from './Settings.slice';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import { GenericForm } from '../../GenericForm/GenericForm';
-import { buildGenericFormField } from '../../../types/genericFormField';
+import useToastCustom from '../../../hooks/useToastCustom';
 
 export interface SettingsField {
   name: keyof UserSettings;
@@ -60,6 +58,10 @@ const schema = yup
 export function Settings() {
   const { user, errors, updating } = useStore(({ settings }) => settings);
 
+  const [loading, setLoading] = useState(false);
+
+  const { notifySuccess, notifyError } = useToastCustom();
+
   const {
     register,
     handleSubmit,
@@ -71,35 +73,31 @@ export function Settings() {
   });
 
   const onSubmitForm = async (data: any) => {
-    console.log('🚀 -> onSubmitForm -> data:', data);
-
     try {
-      let password = null;
-      if (data.password !== '') {
-        password = data.password;
-      }
-
+      setLoading(true);
       const paramUpdate = {
         image: data.image,
         username: data.username,
         bio: data.bio,
         email: data.email,
-        password: password,
       };
 
       const result = await updateSettings(paramUpdate);
+      store.dispatch(loadUser(result.user));
 
-      result.match({
-        err: (e) => {
-          console.log('🚀 -> onSubmitForm -> e:', e);
-        },
-        ok: (user) => {
-          store.dispatch(loadUser(user));
-          location.hash = '/';
-        },
-      });
-    } catch (error) {
-      console.log('🚀 -> onSubmitForm -> error:', error);
+      notifySuccess('Cập nhật thông tin thành công');
+
+      // location.hash = '/';
+    } catch (error: any) {
+      const errorList = error?.response?.data?.errors?.body;
+      console.log('🚀 -> onSubmitForm -> errorList:', errorList);
+      if (errorList) {
+        notifyError('Cập nhật thông tin thất bại', errorList.join(', '));
+      } else {
+        notifyError('Cập nhật thông tin thất bại', 'Hãy thử lại');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,14 +106,13 @@ export function Settings() {
     setValueForm('username', user.username);
     setValueForm('bio', user.bio);
     setValueForm('email', user.email);
-    setValueForm('password', user.password);
   }, [user]);
 
   return (
-    <AuthStyled className='settings-page'>
+    <AuthStyled className=''>
       <ContainerPage>
-        <div className='col-md-6 offset-md-3 col-xs-12'>
-          {/* <LinearProgress /> */}
+        <div className='col-md-6 offset-md-3 col-xs-12 pb-4 wrapper-auth'>
+          {loading && <LinearProgress />}
 
           <h1 className='text-xs-center my-3'>Thông tin tài khoản</h1>
 
@@ -162,16 +159,6 @@ export function Settings() {
             />
             <p></p>
 
-            <TextField
-              fullWidth
-              variant='outlined'
-              label='Mật khẩu'
-              placeholder='Mật khẩu'
-              className='input-auth'
-              type='password'
-              {...register('password')}
-            />
-            <p className='error-auth'>{errorsForm?.password?.message}</p>
             <div className='wrapper-btn-auth'>
               <Button
                 variant='contained'
@@ -185,61 +172,15 @@ export function Settings() {
             </div>
           </form>
 
-          <hr />
+          {/* <hr />
 
-          {/* <GenericForm
-            disabled={updating}
-            formObject={{ ...user }}
-            submitButtonText='Cập nhật'
-            errors={errors}
-            onChange={onUpdateField}
-            onSubmit={onUpdateSettings(user)}
-            fields={[
-              buildGenericFormField({ name: 'image', placeholder: 'URL ảnh đại diện' }),
-              buildGenericFormField({ name: 'username', placeholder: 'Tên hiển thị' }),
-              buildGenericFormField({
-                name: 'bio',
-                placeholder: 'Mô tả về bản thân',
-                rows: 8,
-                fieldType: 'textarea',
-              }),
-              buildGenericFormField({ name: 'email', placeholder: 'Email' }),
-              buildGenericFormField({
-                name: 'password',
-                placeholder: 'Mật khẩu',
-                type: 'password',
-              }),
-            ]}
-          />
-
-          <hr /> */}
           <button className='btn btn-outline-danger' onClick={_logout}>
             Đăng xuất
-          </button>
+          </button> */}
         </div>
       </ContainerPage>
     </AuthStyled>
   );
-}
-
-function onUpdateField(name: string, value: string) {
-  store.dispatch(updateField({ name: name as keyof SettingsState['user'], value }));
-}
-
-function onUpdateSettings(user: UserSettings) {
-  return async (ev: React.FormEvent) => {
-    ev.preventDefault();
-    store.dispatch(startUpdate());
-    const result = await updateSettings(user);
-
-    result.match({
-      err: (e) => store.dispatch(updateErrors(e)),
-      ok: (user) => {
-        store.dispatch(loadUser(user));
-        location.hash = '/';
-      },
-    });
-  };
 }
 
 function _logout() {
