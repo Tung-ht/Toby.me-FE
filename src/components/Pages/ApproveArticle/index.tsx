@@ -14,6 +14,7 @@ import { ADMIN } from '../../../config/role';
 import { User } from '../../../types/user';
 import { useStore } from '../../../state/storeHooks';
 import SingleArticleApprove from './SingleArticleApprove';
+import useRole from '../../../hooks/useRole';
 
 const initQuery: ArticlesFilters = {
   limit: 10,
@@ -26,13 +27,12 @@ function ApproveArticle() {
 
   const [query, setQuery] = useState(initQuery);
 
-  const { user } = useStore(({ app }) => app);
+  const { isAdmin } = useRole();
 
   const handleGetArticle = async () => {
     const rs = await getArticlesUnapproved(query);
 
     setArticles(rs.articles);
-    console.log('🚀 -> handleGetArticle -> rs:', rs);
   };
 
   const handleChangeTabs = (tag: string) => {
@@ -54,9 +54,7 @@ function ApproveArticle() {
   }, [query]);
 
   useEffect(() => {
-    const userRole = user && user.map((x: User) => x.roles).unwrap();
-
-    if (userRole.includes(ADMIN) === false) {
+    if (isAdmin() === false) {
       location.hash = '/';
     }
   }, []);
