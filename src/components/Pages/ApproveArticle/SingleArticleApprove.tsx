@@ -1,12 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { Article } from '../../../types/article';
 import { ArticlePreviewStyled, TagList } from '../../ArticlePreview/ArticlePreview';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Button } from '@material-ui/core';
-import { approveArticle } from '../../../services/services';
+import { Button, LinearProgress } from '@material-ui/core';
+import { adminDeleteArticle, approveArticle, deleteArticle } from '../../../services/services';
 import '../../../styles/animation.css';
 import { CSSTransition } from 'react-transition-group';
+import useToastCustom from '../../../hooks/useToastCustom';
 
 interface SingleArticleApproveProps {
   data: Article;
@@ -15,52 +16,95 @@ interface SingleArticleApproveProps {
 function SingleArticleApprove({ data }: SingleArticleApproveProps) {
   const { author, slug, title, description, createdAt, tagList } = data;
 
-  const [outArticle, setOutArticle] = useState(false);
+  const { notifySuccess, notifyError } = useToastCustom();
+
+  const [loading, setLoading] = useState(false);
+
+  const [outArticle, setOutArticle] = useState(true);
   const nodeRef = useRef(null);
 
   const handleApproveArticle = async (slug: string) => {
-    const rs = await approveArticle(slug);
-    console.log('🚀 -> handleApproveArticle -> rs:', rs);
+    try {
+      setLoading(true);
+      const rs = await approveArticle(slug);
+
+      if (rs.status === 200) {
+        setOutArticle(false);
+        notifySuccess('Bài viết đã được phê duyệt');
+      } else {
+        notifyError('Phê duyệt bài viết thất bại');
+      }
+    } catch (error) {
+      notifyError('Phê duyệt bài viết thất bại');
+      console.log('🚀 -> handleApproveArticle -> error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteArticle = async (slug: string) => {
+    try {
+      setLoading(true);
+      const rs = await adminDeleteArticle(slug);
+
+      if (rs.status === 200) {
+        setOutArticle(false);
+        notifySuccess('Bài viết đã bị từ chối');
+      } else {
+        notifyError('Từ chối bài viết thất bại');
+      }
+    } catch (error) {
+      notifyError('Từ chối bài viết thất bại');
+      console.log('🚀 -> handleApproveArticle -> error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <ArticlePreviewStyled>
-      <img
-        src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
-        alt=''
-        className='thumbs-article'
-      />
-      <Link to={`/profile/${author?.username}`} className='wrapper-author'>
-        <img src={author?.image || undefined} className='author-avt' />
-        <h5 className='author-name'>{author?.username}</h5>
-      </Link>
-      <div className='post'>
-        <Link to={`/article/${encodeURIComponent(slug)}`} className='title-post'>
-          <h2>{title}</h2>
+    <CSSTransition in={outArticle} nodeRef={nodeRef} timeout={500} classNames='alert' unmountOnExit>
+      <ArticlePreviewStyled ref={nodeRef}>
+        {loading && <LinearProgress />}
+        <img
+          src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
+          alt=''
+          className='thumbs-article'
+        />
+        <Link to={`/profile/${author?.username}`} className='wrapper-author'>
+          <img src={author?.image || undefined} className='author-avt' />
+          <h5 className='author-name'>{author?.username}</h5>
         </Link>
-        <p>{description}</p>
-      </div>
-      <div className='container-info'>
-        <div className='info-list'>
-          <div className='info-item'>{format(createdAt, 'PP')}</div>
+        <div className='post'>
+          <Link to={`/article/${encodeURIComponent(slug)}`} className='title-post'>
+            <h2>{title}</h2>
+          </Link>
+          <p>{description}</p>
         </div>
-        <div className='py-2'>
-          <Button
-            variant='contained'
-            color='primary'
-            className='me-2'
-            onClick={() => handleApproveArticle(encodeURIComponent(slug))}
-          >
-            Phê duyệt
-          </Button>
-          <Button variant='contained' color='secondary'>
-            Từ chối
-          </Button>
+        <div className='container-info'>
+          <div className='info-list'>
+            <div className='info-item'>{format(createdAt, 'PP')}</div>
+          </div>
+          <div className='py-2'>
+            <Button
+              variant='contained'
+              color='primary'
+              className='me-2'
+              onClick={() => handleApproveArticle(encodeURIComponent(slug))}
+            >
+              Phê duyệt
+            </Button>
+            <Button
+              variant='contained'
+              color='secondary'
+              onClick={() => handleDeleteArticle(encodeURIComponent(slug))}
+            >
+              Từ chối
+            </Button>
+          </div>
         </div>
-      </div>
-
-      <TagList tagList={tagList} />
-    </ArticlePreviewStyled>
+        <TagList tagList={tagList} />
+      </ArticlePreviewStyled>
+    </CSSTransition>
   );
 }
 

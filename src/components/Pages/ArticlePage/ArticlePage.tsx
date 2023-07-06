@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Option } from '@hqoss/monads';
 import { format } from 'date-fns';
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
+  adminDeleteArticle,
   createComment,
   deleteArticle,
   deleteComment,
@@ -36,6 +37,9 @@ import {
   updateCommentBody,
 } from './ArticlePage.slice';
 import { ArticlePageBannerStyled, ArticlePageStyled } from './ArticlePageStyled';
+import { CircularProgress, Divider, LinearProgress } from '@material-ui/core';
+import useRole from '../../../hooks/useRole';
+import useToastCustom from '../../../hooks/useToastCustom';
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -192,6 +196,29 @@ function NonOwnerArticleMetaActions({
   submittingFavorite: boolean;
   submittingFollow: boolean;
 }) {
+  const { isAdmin } = useRole();
+  const [loading, setLoading] = useState(false);
+  const { notifySuccess, notifyError } = useToastCustom();
+
+  const handleDeleteArticle = async () => {
+    try {
+      setLoading(true);
+      const rs = await adminDeleteArticle(slug);
+
+      if (rs.status === 200) {
+        notifySuccess('Bài viết đã bị xóa');
+        location.hash = '/';
+      } else {
+        notifyError('Xóa bài viết thất bại');
+      }
+    } catch (error) {
+      notifyError('Xóa bài viết thất bại');
+      console.log('🚀 -> handleApproveArticle -> error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Fragment>
       <button
@@ -200,12 +227,13 @@ function NonOwnerArticleMetaActions({
           'btn-sm': true,
           'btn-outline-secondary': !following,
           'btn-secondary': following,
+          'my-1': true,
         })}
         disabled={submittingFollow}
         onClick={() => onFollow(username, following)}
       >
         <i className='ion-plus-round'></i>
-        &nbsp; {(following ? 'Hủy theo dõi ' : 'Theo dõi ') + username}
+        &nbsp; {following ? 'Hủy theo dõi ' : 'Theo dõi '}
       </button>
       &nbsp;
       <button
@@ -214,6 +242,7 @@ function NonOwnerArticleMetaActions({
           'btn-sm': true,
           'btn-outline-primary': !favorited,
           'btn-primary': favorited,
+          'my-1': true,
         })}
         disabled={submittingFavorite}
         onClick={() => onFavorite(slug, favorited)}
@@ -222,6 +251,16 @@ function NonOwnerArticleMetaActions({
         &nbsp; {favorited ? 'Hủy yêu thích ' : 'Yêu thích '}
         <span className='counter'>({favoritesCount})</span>
       </button>
+      {isAdmin() && (
+        <>
+          <Divider className='mt-2' />
+          {loading && <LinearProgress />}
+          <button className='btn btn-sm btn btn-danger mt-2' onClick={() => handleDeleteArticle()}>
+            <i className='ion-trash-a'></i>
+            &nbsp; Xóa bài viết
+          </button>
+        </>
+      )}
     </Fragment>
   );
 }
@@ -260,7 +299,7 @@ function OwnerArticleMetaActions({
   return (
     <Fragment>
       <button
-        className='btn btn-outline-secondary btn-sm'
+        className='btn btn-outline-secondary btn-sm my-1'
         onClick={() => redirect(`editor/${slug}`)}
       >
         <i className='ion-plus-round'></i>
@@ -268,7 +307,7 @@ function OwnerArticleMetaActions({
       </button>
       &nbsp;
       <button
-        className='btn btn-outline-danger btn-sm'
+        className='btn btn-outline-danger btn-sm my-1'
         disabled={deletingArticle}
         onClick={() => onDeleteArticle(slug)}
       >

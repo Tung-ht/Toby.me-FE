@@ -192,3 +192,7 @@ export async function createComment(slug: string, body: string): Promise<Comment
 export async function deleteArticle(slug: string): Promise<void> {
   await axios.delete(`articles/${slug}`);
 }
+
+export function adminDeleteArticle(slug: string) {
+  return axios.delete(`articles/${slug}`);
+}
