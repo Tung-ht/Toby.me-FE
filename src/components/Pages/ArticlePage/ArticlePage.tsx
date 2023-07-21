@@ -37,10 +37,12 @@ import {
   updateCommentBody,
 } from './ArticlePage.slice';
 import { ArticlePageBannerStyled, ArticlePageStyled } from './ArticlePageStyled';
-import { CircularProgress, Divider, LinearProgress } from '@material-ui/core';
+import { Button, CircularProgress, Divider, LinearProgress } from '@material-ui/core';
 import useRole from '../../../hooks/useRole';
 import useToastCustom from '../../../hooks/useToastCustom';
 import { DEFAULT_AVATAR } from '../../../config/settings';
+import { styled } from 'styled-components';
+import { ButtonStyled } from '../../../styles/common';
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -62,14 +64,6 @@ export function ArticlePage() {
     some: (article: any) => {
       return (
         <ArticlePageStyled className='article-page'>
-          <div className='container page'>
-            {/* <img
-              src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
-              alt=''
-              className=' thumbs-article-page'
-            /> */}
-          </div>
-
           <div className='container wrapper-content'>
             <div className='wrapper-content-left'>
               <ArticleMeta {...{ article, metaSection, user }} />
@@ -81,20 +75,17 @@ export function ArticlePage() {
               {/* <ArticlePageBanner {...{ article, metaSection, user }} /> */}
 
               <div className='article-date'>{format(article.createdAt, 'hh:mm - dd/MM/yyyy')}</div>
-
-              <h1>{article.title}</h1>
+              <h1 className='mb-5'>{article.title}</h1>
 
               <div className='article-description'>{article.description}</div>
 
-              <div className='row article-content'>
+              <div className='row article-content' id='article-content-styled'>
                 <div className='col-md-12' dangerouslySetInnerHTML={{ __html: article.body }}></div>
               </div>
             </div>
           </div>
 
           <div className='container page'>
-            <hr />
-
             <div className='article-actions'></div>
 
             <CommentSection {...{ user, commentSection, article }} />
@@ -170,18 +161,34 @@ function ArticleAuthorInfo({
   article: Article;
 }) {
   return (
-    <Fragment>
+    <ArticleAuthorInfoStyled>
       <Link to={`/profile/${username}`}>
         <img src={image || DEFAULT_AVATAR} />
       </Link>
-      <div className='info'>
-        <Link className='author' to={`/profile/${username}`}>
-          {username}
-        </Link>
+      <div className='author-info'>
+        <Link to={`/profile/${username}`}>{username}</Link>
       </div>
-    </Fragment>
+    </ArticleAuthorInfoStyled>
   );
 }
+
+const ArticleAuthorInfoStyled = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+
+  img {
+    height: 70px;
+    width: 70px;
+    border-radius: 50%;
+  }
+
+  .author-info {
+    font-weight: 500;
+    font-size: 20px;
+  }
+`;
 
 function NonOwnerArticleMetaActions({
   article: {
@@ -222,7 +229,59 @@ function NonOwnerArticleMetaActions({
 
   return (
     <Fragment>
-      <button
+      <ButtonStyled
+        size='small'
+        variant={following ? 'contained' : 'outlined'}
+        color='primary'
+        onClick={() => onFollow(username, following)}
+        disabled={submittingFollow}
+        className='w-100'
+      >
+        {following ? <i className='ion-ios-flame'></i> : <i className='ion-plus-round'></i>}
+        &nbsp; {following ? 'Đang theo dõi' : 'Theo dõi '}
+      </ButtonStyled>
+
+      <ButtonStyled
+        size='small'
+        color='secondary'
+        variant={favorited ? 'contained' : 'outlined'}
+        disabled={submittingFavorite}
+        onClick={() => onFavorite(slug, favorited)}
+        className='w-100 mt-2'
+      >
+        <i className='ion-heart'></i>
+        &nbsp; {favorited ? 'Bỏ yêu thích ' : 'Yêu thích '}
+        <span className='counter'>({favoritesCount})</span>
+      </ButtonStyled>
+
+      {isAdmin() && (
+        <>
+          <Divider className='mt-2' />
+          {loading && <LinearProgress />}
+          <ButtonStyled
+            size='small'
+            color='secondary'
+            onClick={() => handleDeleteArticle()}
+            className='w-100 mt-2'
+          >
+            <i className='ion-trash-a'></i>
+            &nbsp; Xóa bài viết
+          </ButtonStyled>
+        </>
+      )}
+
+      {/* {isAdmin() && (
+        <>
+          <Divider className='mt-2' />
+          {loading && <LinearProgress />}
+          <button className='btn btn-sm btn btn-danger mt-2' onClick={() => handleDeleteArticle()}>
+            <i className='ion-trash-a'></i>
+            &nbsp; Xóa bài viết
+          </button>
+        </>
+      )} */}
+      {/*  */}
+      {/* <button
         className={classObjectToClassName({
           btn: true,
           'btn-sm': true,
@@ -235,9 +294,9 @@ function NonOwnerArticleMetaActions({
       >
         <i className='ion-plus-round'></i>
         &nbsp; {following ? 'Hủy theo dõi ' : 'Theo dõi '}
-      </button>
-      &nbsp;
-      <button
+      </button> */}
+      {/* &nbsp; */}
+      {/* <button
         className={classObjectToClassName({
           btn: true,
           'btn-sm': true,
@@ -251,17 +310,7 @@ function NonOwnerArticleMetaActions({
         <i className='ion-heart'></i>
         &nbsp; {favorited ? 'Hủy yêu thích ' : 'Yêu thích '}
         <span className='counter'>({favoritesCount})</span>
-      </button>
-      {isAdmin() && (
-        <>
-          <Divider className='mt-2' />
-          {loading && <LinearProgress />}
-          <button className='btn btn-sm btn btn-danger mt-2' onClick={() => handleDeleteArticle()}>
-            <i className='ion-trash-a'></i>
-            &nbsp; Xóa bài viết
-          </button>
-        </>
-      )}
+      </button> */}
     </Fragment>
   );
 }
@@ -299,21 +348,43 @@ function OwnerArticleMetaActions({
 }) {
   return (
     <Fragment>
-      <button
+      <ButtonStyled
+        size='small'
+        color='primary'
+        variant={'outlined'}
+        onClick={() => redirect(`editor/${encodeURIComponent(slug)}`)}
+        className='w-100 mt-2'
+      >
+        <i className='ion-plus-round'></i>
+        &nbsp; Chỉnh sửa bài viết
+      </ButtonStyled>
+
+      <ButtonStyled
+        size='small'
+        color='secondary'
+        disabled={deletingArticle}
+        onClick={() => onDeleteArticle(encodeURIComponent(slug))}
+        className='w-100 mt-2'
+      >
+        <i className='ion-trash-a'></i>
+        &nbsp; Xóa bài viết
+      </ButtonStyled>
+      {/*  */}
+      {/* <button
         className='btn btn-outline-secondary btn-sm my-1'
         onClick={() => redirect(`editor/${slug}`)}
       >
         <i className='ion-plus-round'></i>
         &nbsp; Chỉnh sửa bài viết
       </button>
-      &nbsp;
-      <button
+      &nbsp; */}
+      {/* <button
         className='btn btn-outline-danger btn-sm my-1'
         disabled={deletingArticle}
         onClick={() => onDeleteArticle(slug)}
       >
         &#10005; Xóa bài viết
-      </button>
+      </button> */}
     </Fragment>
   );
 }

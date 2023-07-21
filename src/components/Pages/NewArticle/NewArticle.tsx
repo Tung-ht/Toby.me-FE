@@ -156,6 +156,9 @@ export function NewArticle() {
           <div className='input-label'>Tags:</div>
           <Select
             id='multiple-tags'
+            style={{
+              maxHeight: '56px',
+            }}
             multiple
             fullWidth
             variant='outlined'

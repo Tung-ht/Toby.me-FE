@@ -6,6 +6,10 @@
   background-color: #f0f2f5;
 }
 
+.bg-white {
+  background-color: #ffffff
+}
+
 html {
   position: relative;
   min-height: 100vh;
@@ -25,11 +29,6 @@ html {
 
 body {
   margin: 0;
-}
-
-button:focus {
-  outline: none;
-  border: none;
 }
 
 article,
@@ -339,8 +338,8 @@ body {
   font-family: 'Open Sans', sans-serif;
   font-size: 1rem;
   line-height: 1.5;
-  color: #373a3c;
-  background-color: #fff;
+  color: #202220;
+  background-color: #f0f2f5;
 }
 
 [tabindex='-1']:focus {
@@ -483,10 +482,6 @@ label {
   margin-bottom: 0.5rem;
 }
 
-button:focus {
-  outline: 1px dotted;
-  outline: 5px auto -webkit-focus-ring-color;
-}
 
 input,
 button,
