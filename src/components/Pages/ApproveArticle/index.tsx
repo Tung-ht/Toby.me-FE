@@ -2,7 +2,7 @@
 import { Button, Chip } from '@material-ui/core';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { styled } from 'styled-components';
 import { approveArticle, getArticlesUnapproved, getTags } from '../../../services/services';
 import { ArticlePreviewStyled, TagList } from '../../ArticlePreview/ArticlePreview';
@@ -15,6 +15,7 @@ import { User } from '../../../types/user';
 import { useStore } from '../../../state/storeHooks';
 import SingleArticleApprove from './SingleArticleApprove';
 import useRole from '../../../hooks/useRole';
+import SkeletonArticleViewer from '../../Common/SkeletonArticleViewer';
 
 const initQuery: ArticlesFilters = {
   limit: 10,
@@ -24,29 +25,47 @@ const initQuery: ArticlesFilters = {
 
 function ApproveArticle() {
   const [articles, setArticles] = useState<any[]>([]);
+  const [countArticles, setCountArticles] = useState(0);
 
   const [query, setQuery] = useState(initQuery);
+
+  const [loading, setLoading] = useState(false);
 
   const { isAdmin } = useRole();
 
   const handleGetArticle = async () => {
-    const rs = await getArticlesUnapproved(query);
+    try {
+      setLoading(true);
+      const rs = await getArticlesUnapproved(query);
 
-    setArticles(rs.articles);
+      setCountArticles(rs.articlesCount);
+      setArticles(rs.articles);
+    } catch (error) {
+      console.log('🚀 -> handleGetArticle -> error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChangeTabs = (tag: string) => {
     if (tag === 'ALL') {
-      const queryTmp = { limit: query.limit, offset: query.offset };
+      const queryTmp = { limit: 10, offset: 0 };
       setQuery(queryTmp);
       return;
     }
-    const queryTmp = { ...query, tag: tag };
+    const queryTmp = { limit: 10, offset: 0, tag: tag };
     setQuery(queryTmp);
   };
 
   const onPageChange = (page: any) => {
-    console.log('🚀 -> onPageChange -> page:', page);
+    if (query.tag) {
+      const queryTmp = { limit: 10, offset: Number(page) - 1, tag: query.tag };
+      setQuery(queryTmp);
+      return;
+    }
+
+    const queryTmp = { limit: 10, offset: Number(page) - 1 };
+    setQuery(queryTmp);
   };
 
   useEffect(() => {
@@ -61,23 +80,32 @@ function ApproveArticle() {
 
   return (
     <ApproveArticleStyled className=''>
-      <div className='d-flex justify-content-center py-3'>
+      <div className='d-flex justify-content-center py-5'>
         <h2>Duyệt bài viết thành viên</h2>
       </div>
 
       <div className='wrapper-articles row justify-content-center'>
-        <div className='col-md-9'>
-          {articles.map((ar: Article, index: number) => {
-            console.log('🚀 -> {articles.map -> ar:', ar);
-            return <SingleArticleApprove key={index} data={ar}></SingleArticleApprove>;
-          })}
-
-          {/* <Pagination currentPage={1} count={100} itemsPerPage={10} onPageChange={onPageChange} /> */}
-        </div>
+        {loading ? (
+          <div className='col-md-9'>
+            <SkeletonArticleViewer />
+          </div>
+        ) : (
+          <div className='col-md-9'>
+            {articles.map((ar: Article, index: number) => {
+              return <SingleArticleApprove key={index} data={ar}></SingleArticleApprove>;
+            })}
+          </div>
+        )}
 
         <div className='col-md-3'>
           <HomeSidebar handleChangeTabs={handleChangeTabs} />
         </div>
+        <Pagination
+          currentPage={Number(query.offset) ? Number(query.offset) + 1 : 1}
+          count={countArticles}
+          itemsPerPage={Number(query.limit) ? Number(query.limit) : 10}
+          onPageChange={onPageChange}
+        />
       </div>
     </ApproveArticleStyled>
   );
@@ -93,7 +121,7 @@ function HomeSidebar({ handleChangeTabs }: { handleChangeTabs: (tab: string) => 
   const handleGetTags = async () => {
     try {
       setLoading(true);
-      const rs: any = await getTags();
+      const rs: any = await getTags(0);
       const tagList: any = ['ALL', ...rs.tags];
       setTags(tagList);
     } catch (error) {
@@ -129,7 +157,7 @@ function HomeSidebar({ handleChangeTabs }: { handleChangeTabs: (tab: string) => 
                 label={tag}
                 color={tagSelect === tag ? 'primary' : 'default'}
                 onClick={() => {
-                  handleChangeTabs(tag);
+                  handleChangeTabs(encodeURIComponent(tag));
                   setTagSelect(tag);
                 }}
               />
@@ -143,7 +171,7 @@ function HomeSidebar({ handleChangeTabs }: { handleChangeTabs: (tab: string) => 
 
 export default ApproveArticle;
 
-const ApproveArticleStyled = styled.div`
+export const ApproveArticleStyled = styled.div`
   background-color: #f0f2f5;
 
   .wrapper-articles {

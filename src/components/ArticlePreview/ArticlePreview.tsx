@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { Article } from '../../types/article';
 import { styled } from 'styled-components';
+import { DEFAULT_AVATAR } from '../../config/settings';
 
 export function ArticlePreview({
   article: {
@@ -23,14 +24,8 @@ export function ArticlePreview({
 }) {
   return (
     <ArticlePreviewStyled>
-      {/* <img
-        src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
-        alt=''
-        className='thumbs-article'
-      /> */}
-
       <Link to={`/profile/${username}`} className='wrapper-author'>
-        <img src={image || undefined} className='author-avt' />
+        <img src={image || DEFAULT_AVATAR} className='author-avt' />
 
         <h5 className='author-name'>{username}</h5>
       </Link>
@@ -45,7 +40,7 @@ export function ArticlePreview({
 
       <div className='container-info'>
         <div className='info-list'>
-          <div className='info-item'>{format(createdAt, 'PP')}</div>
+          <div className='info-item'>{format(createdAt, 'hh:mm - dd/MM/yyyy')}</div>
         </div>
 
         <div>

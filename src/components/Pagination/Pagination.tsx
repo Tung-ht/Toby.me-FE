@@ -21,9 +21,13 @@ export function Pagination({
               className={`page-item${currentPage !== index ? '' : ' active'}`}
               onClick={onPageChange && (() => onPageChange(index))}
             >
-              <a className='page-link' aria-label={`Go to page number ${index}`} href='#'>
+              <span
+                style={{ cursor: 'pointer' }}
+                className='page-link'
+                aria-label={`Go to page number ${index}`}
+              >
                 {index}
-              </a>
+              </span>
             </li>
           ))}
       </ul>

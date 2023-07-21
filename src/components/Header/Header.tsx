@@ -168,7 +168,7 @@ function UserLinks({ user: { username } }: { user: any }) {
                 <div className='nav-item'>
                   <NavLink
                     exact
-                    to={`/approve-article`}
+                    to={`/${username}/approve-article`}
                     activeClassName='active'
                     className='nav-link'
                   >

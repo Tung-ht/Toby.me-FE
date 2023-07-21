@@ -1,3 +1,4 @@
+import { DEFAULT_AVATAR } from '../../config/settings';
 import { useStore } from '../../state/storeHooks';
 import { Profile } from '../../types/profile';
 
@@ -20,7 +21,7 @@ export function UserInfo({
       <div className='container'>
         <div className='row'>
           <div className='col-xs-12 col-md-10 offset-md-1'>
-            <img src={image || undefined} className='user-img' />
+            <img src={image || DEFAULT_AVATAR} className='user-img' />
             <h4>{username}</h4>
             <p>{bio}</p>
 
@@ -53,7 +54,11 @@ function ToggleFollowButton({
   onClick?: () => void;
 }) {
   return (
-    <button className='btn btn-sm btn-outline-secondary action-btn' onClick={onClick} disabled={disabled}>
+    <button
+      className='btn btn-sm btn-outline-secondary action-btn'
+      onClick={onClick}
+      disabled={disabled}
+    >
       <i className='ion-plus-round'></i>
       &nbsp;
       {following ? ' Hủy theo dõi' : ' Theo dõi'} {username}
@@ -63,7 +68,11 @@ function ToggleFollowButton({
 
 function EditProfileButton({ disabled, onClick }: { disabled: boolean; onClick?: () => void }) {
   return (
-    <button className='btn btn-sm btn-outline-secondary action-btn' onClick={onClick} disabled={disabled}>
+    <button
+      className='btn btn-sm btn-outline-secondary action-btn'
+      onClick={onClick}
+      disabled={disabled}
+    >
       <i className='ion-gear-a'></i>&nbsp; Chỉnh sửa thông tin cá nhân
     </button>
   );
