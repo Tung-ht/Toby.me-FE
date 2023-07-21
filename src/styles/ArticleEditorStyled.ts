@@ -4,6 +4,9 @@ export const ArticleEditorStyled = styled.div`
   max-width: 1000px;
   margin: 20px auto 0px;
   width: 100%;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
 
   .loading-article {
     margin: 20px 0px;
@@ -11,6 +14,7 @@ export const ArticleEditorStyled = styled.div`
 
   .input-editor {
     margin: 0px;
+    /* background: #ffffff; */
   }
 
   .input-label {
@@ -45,5 +49,9 @@ export const ArticleEditorStyled = styled.div`
         border: none;
       }
     }
+  }
+
+  .MuiOutlinedInput-root {
+    height: 56px;
   }
 `;

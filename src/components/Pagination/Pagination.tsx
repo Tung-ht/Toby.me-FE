@@ -1,4 +1,5 @@
 import { range } from 'ramda';
+import { styled } from 'styled-components';
 
 export function Pagination({
   currentPage,
@@ -12,7 +13,7 @@ export function Pagination({
   onPageChange?: (index: number) => void;
 }) {
   return (
-    <nav>
+    <PaginationStyled>
       <ul className='pagination'>
         {Math.ceil(count / itemsPerPage) > 1 &&
           range(1, Math.ceil(count / itemsPerPage) + 1).map((index) => (
@@ -31,6 +32,12 @@ export function Pagination({
             </li>
           ))}
       </ul>
-    </nav>
+    </PaginationStyled>
   );
 }
+
+const PaginationStyled = styled.nav`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
