@@ -91,7 +91,7 @@ async function getArticlesByType(username: string, favorites: boolean) {
   const { currentPage } = store.getState().articleViewer;
   return await getArticles({
     [favorites ? 'favorited' : 'author']: username,
-    offset: (currentPage - 1) * 10,
+    offset: currentPage - 1,
   });
 }
 
