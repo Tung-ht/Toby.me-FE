@@ -8,6 +8,7 @@ import { adminDeleteArticle, approveArticle, deleteArticle } from '../../../serv
 import '../../../styles/animation.css';
 import { CSSTransition } from 'react-transition-group';
 import useToastCustom from '../../../hooks/useToastCustom';
+import useRole from '../../../hooks/useRole';
 
 interface SingleArticleApproveProps {
   data: Article;
@@ -15,6 +16,8 @@ interface SingleArticleApproveProps {
 
 function SingleArticleApprove({ data }: SingleArticleApproveProps) {
   const { author, slug, title, description, createdAt, tagList } = data;
+
+  const { isAdmin } = useRole();
 
   const { notifySuccess, notifyError } = useToastCustom();
 
@@ -64,12 +67,7 @@ function SingleArticleApprove({ data }: SingleArticleApproveProps) {
   return (
     <CSSTransition in={outArticle} nodeRef={nodeRef} timeout={500} classNames='alert' unmountOnExit>
       <ArticlePreviewStyled ref={nodeRef}>
-        {loading && <LinearProgress />}
-        <img
-          src='https://i.pinimg.com/originals/19/db/31/19db31732931019b73bedcf17924f814.jpg'
-          alt=''
-          className='thumbs-article'
-        />
+        {loading && <LinearProgress className='my-2' />}
         <Link to={`/profile/${author?.username}`} className='wrapper-author'>
           <img src={author?.image || undefined} className='author-avt' />
           <h5 className='author-name'>{author?.username}</h5>
@@ -82,25 +80,28 @@ function SingleArticleApprove({ data }: SingleArticleApproveProps) {
         </div>
         <div className='container-info'>
           <div className='info-list'>
-            <div className='info-item'>{format(createdAt, 'PP')}</div>
+            <div className='info-item'>{format(createdAt, 'hh:mm - dd/MM/yyyy')}</div>
           </div>
-          <div className='py-2'>
-            <Button
-              variant='contained'
-              color='primary'
-              className='me-2'
-              onClick={() => handleApproveArticle(encodeURIComponent(slug))}
-            >
-              Phê duyệt
-            </Button>
-            <Button
-              variant='contained'
-              color='secondary'
-              onClick={() => handleDeleteArticle(encodeURIComponent(slug))}
-            >
-              Từ chối
-            </Button>
-          </div>
+
+          {isAdmin() && (
+            <div className='py-2'>
+              <Button
+                variant='contained'
+                color='primary'
+                className='me-2'
+                onClick={() => handleApproveArticle(encodeURIComponent(slug))}
+              >
+                Phê duyệt
+              </Button>
+              <Button
+                variant='contained'
+                color='secondary'
+                onClick={() => handleDeleteArticle(encodeURIComponent(slug))}
+              >
+                Từ chối
+              </Button>
+            </div>
+          )}
         </div>
         <TagList tagList={tagList} />
       </ArticlePreviewStyled>

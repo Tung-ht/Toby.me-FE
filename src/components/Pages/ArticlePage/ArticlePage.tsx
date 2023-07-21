@@ -40,6 +40,7 @@ import { ArticlePageBannerStyled, ArticlePageStyled } from './ArticlePageStyled'
 import { CircularProgress, Divider, LinearProgress } from '@material-ui/core';
 import useRole from '../../../hooks/useRole';
 import useToastCustom from '../../../hooks/useToastCustom';
+import { DEFAULT_AVATAR } from '../../../config/settings';
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -79,7 +80,7 @@ export function ArticlePage() {
             <div className='wrapper-content-right'>
               {/* <ArticlePageBanner {...{ article, metaSection, user }} /> */}
 
-              <div className='article-date'>{format(article.createdAt, 'PP')}</div>
+              <div className='article-date'>{format(article.createdAt, 'hh:mm - dd/MM/yyyy')}</div>
 
               <h1>{article.title}</h1>
 
@@ -171,7 +172,7 @@ function ArticleAuthorInfo({
   return (
     <Fragment>
       <Link to={`/profile/${username}`}>
-        <img src={image || undefined} />
+        <img src={image || DEFAULT_AVATAR} />
       </Link>
       <div className='info'>
         <Link className='author' to={`/profile/${username}`}>
@@ -396,7 +397,7 @@ function CommentForm({
         ></textarea>
       </div>
       <div className='card-footer'>
-        <img src={image || undefined} className='comment-author-img' />
+        <img src={image || DEFAULT_AVATAR} className='comment-author-img' />
         <button className='btn btn-sm btn-primary' disabled={submittingComment}>
           Đăng bình luận
         </button>
@@ -443,13 +444,13 @@ function ArticleComment({
       </div>
       <div className='card-footer'>
         <Link className='comment-author' to={`/profile/${username}`}>
-          <img src={image || undefined} className='comment-author-img' />
+          <img src={image || DEFAULT_AVATAR} className='comment-author-img' />
         </Link>
         &nbsp;
         <Link className='comment-author' to={`/profile/${username}`}>
           {username}
         </Link>
-        <span className='date-posted'>{format(createdAt, 'PP')}</span>
+        <span className='date-posted'>{format(createdAt, 'hh:mm - dd/MM/yyyy')}</span>
         {user.isSome() && user.unwrap().username === username && (
           <span className='mod-options'>
             <i

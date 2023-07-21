@@ -55,8 +55,8 @@ export async function approveArticle(slug: string) {
   return axios.put(`articles/approve/${slug}`);
 }
 
-export async function getTags(): Promise<{ tags: string[] }> {
-  const { data } = await axios.get('tags');
+export async function getTags(isApproved = 1): Promise<{ tags: string[] }> {
+  const { data } = await axios.get(`tags?isApproved=${isApproved}`);
   // data.tags = data.tags.filter(
   //   (e: string) =>
   //     e !== 'implementations' && e !== 'codebaseShow' && e !== 'welcome' && e !== 'introduction' && e !== 'et'

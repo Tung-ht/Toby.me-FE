@@ -50,7 +50,7 @@ export function App() {
             <UserOnlyRoute exact path='/editor/:slug' userIsLogged={userIsLogged}>
               <EditArticle />
             </UserOnlyRoute>
-            <UserOnlyRoute exact path='/approve-article' userIsLogged={userIsLogged}>
+            <UserOnlyRoute exact path='/:username/approve-article' userIsLogged={userIsLogged}>
               <ApproveArticle />
             </UserOnlyRoute>
             <Route path='/profile/:username'>

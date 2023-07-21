@@ -2,6 +2,10 @@
   font-family: titillium web, sans-serif;
 }
 
+.bg-default {
+  background-color: #f0f2f5;
+}
+
 html {
   position: relative;
   min-height: 100vh;
@@ -7643,7 +7647,7 @@ footer .attribution {
 
 .profile-page .user-info {
   text-align: center;
-  background: #f3f3f3;
+  background: #fff;
   padding: 2rem 0 1rem;
 }
 

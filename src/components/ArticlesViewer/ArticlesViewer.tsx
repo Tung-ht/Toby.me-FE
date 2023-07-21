@@ -14,6 +14,8 @@ import {
 import { ArticlesTabSetStyled, TabStyled } from './ArticlesViewerStyled';
 import SkeletonArticleViewer from '../Common/SkeletonArticleViewer';
 import EmptyArticle from '../Common/EmptyArticle';
+import { useLocation } from 'react-router-dom';
+import PendingApproval from '../PendingApproval/PendingApproval';
 
 export function ArticlesViewer({
   toggleClassName,
@@ -30,16 +32,24 @@ export function ArticlesViewer({
 }) {
   const { articles, articlesCount, currentPage } = useStore(({ articleViewer }) => articleViewer);
 
+  const pendingApproval = useLocation().pathname.endsWith('pending-approval');
+
   return (
     <Fragment>
       <ArticlesTabSet {...{ tabs, selectedTab, toggleClassName, onTabChange }} />
-      <ArticleList articles={articles} />
-      <Pagination
-        currentPage={currentPage}
-        count={articlesCount}
-        itemsPerPage={10}
-        onPageChange={onPageChange}
-      />
+      {pendingApproval ? (
+        <PendingApproval></PendingApproval>
+      ) : (
+        <>
+          <ArticleList articles={articles} />
+          <Pagination
+            currentPage={currentPage}
+            count={articlesCount}
+            itemsPerPage={10}
+            onPageChange={onPageChange}
+          />
+        </>
+      )}
     </Fragment>
   );
 }
