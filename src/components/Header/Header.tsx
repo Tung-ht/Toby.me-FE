@@ -80,7 +80,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function UserLinks({ user: { username } }: { user: any }) {
+function UserLinks({ user: { username, image } }: { user: any }) {
+  console.log('🚀 -> UserLinks -> image:', image);
   const { user } = useStore(({ app }) => app);
   const userRole = user.isSome() && user.map((x) => x.roles).unwrap();
 
@@ -128,7 +129,16 @@ function UserLinks({ user: { username } }: { user: any }) {
         component='span'
         className='py-1 px-3 ms-2'
       >
-        <i className='ion-gear-b' style={{ fontSize: 26 }}></i>
+        <div className='d-flex align-items-center'>
+          <div className='me-2' style={{ fontSize: '22px' }}>
+            {username}
+          </div>
+          <img
+            src={image}
+            alt={username}
+            style={{ width: '34px', height: '34px', borderRadius: '50%' }}
+          />
+        </div>
       </IconButton>
 
       <Popper
