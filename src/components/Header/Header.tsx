@@ -130,7 +130,7 @@ function UserLinks({ user: { username, image } }: { user: any }) {
         className='py-1 px-3 ms-2'
       >
         <div className='d-flex align-items-center'>
-          <div className='me-2' style={{ fontSize: '22px' }}>
+          <div className='me-2' style={{ fontSize: '18px', fontWeight: 600 }}>
             {username}
           </div>
           <img

@@ -92,14 +92,14 @@ export async function getUser(): Promise<User> {
 export async function favoriteArticle(slug: string): Promise<Article> {
   console.log('fav');
   return guard(object({ article: articleDecoder }))(
-    (await axios.post(`articles/${slug}/favorite`)).data
+    (await axios.post(`articles/${encodeURIComponent(slug)}/favorite`)).data
   ).article;
 }
 
 export async function unfavoriteArticle(slug: string): Promise<Article> {
   console.log('unfav');
   return guard(object({ article: articleDecoder }))(
-    (await axios.delete(`articles/${slug}/favorite`)).data
+    (await axios.delete(`articles/${encodeURIComponent(slug)}/favorite`)).data
   ).article;
 }
 

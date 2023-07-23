@@ -37,7 +37,7 @@ import {
   updateCommentBody,
 } from './ArticlePage.slice';
 import { ArticlePageBannerStyled, ArticlePageStyled } from './ArticlePageStyled';
-import { Button, CircularProgress, Divider, LinearProgress } from '@material-ui/core';
+import { Button, CircularProgress, Divider, IconButton, LinearProgress } from '@material-ui/core';
 import useRole from '../../../hooks/useRole';
 import useToastCustom from '../../../hooks/useToastCustom';
 import { DEFAULT_AVATAR } from '../../../config/settings';
@@ -74,8 +74,10 @@ export function ArticlePage() {
             <div className='wrapper-content-right'>
               {/* <ArticlePageBanner {...{ article, metaSection, user }} /> */}
 
-              <div className='article-date'>{format(article.createdAt, 'hh:mm - dd/MM/yyyy')}</div>
-              <h1 className='mb-5'>{article.title}</h1>
+              <h1 className='mb-0'>{article.title}</h1>
+              <div className='article-date mb-5'>
+                {format(article.createdAt, 'hh:mm - dd/MM/yyyy')}
+              </div>
 
               <div className='article-description'>{article.description}</div>
 
@@ -88,7 +90,9 @@ export function ArticlePage() {
           <div className='container page'>
             <div className='article-actions'></div>
 
-            <CommentSection {...{ user, commentSection, article }} />
+            <CommentSection
+              {...{ user, commentSection, article, author: article?.author?.username }}
+            />
           </div>
         </ArticlePageStyled>
       );
@@ -399,10 +403,12 @@ function CommentSection({
   user,
   article,
   commentSection: { submittingComment, commentBody, comments },
+  author,
 }: {
   user: Option<User>;
   article: Article;
   commentSection: CommentSectionState;
+  author: string;
 }) {
   return (
     <div className='row'>
@@ -435,6 +441,7 @@ function CommentSection({
                   slug={article.slug}
                   user={user}
                   index={index}
+                  author={author}
                 />
               ))}
             </Fragment>
@@ -457,7 +464,10 @@ function CommentForm({
   submittingComment: boolean;
 }) {
   return (
-    <form className='card comment-form' onSubmit={onPostComment(slug, commentBody)}>
+    <form
+      className='card comment-form'
+      onSubmit={onPostComment(encodeURIComponent(slug), commentBody)}
+    >
       <div className='card-block'>
         <textarea
           className='form-control'
@@ -502,36 +512,82 @@ function ArticleComment({
   slug,
   index,
   user,
+  author,
 }: {
   comment: Comment;
   slug: string;
   index: number;
   user: Option<User>;
+  author: string;
 }) {
+  const { isAdmin } = useRole();
+
   return (
     <div className='card'>
-      <div className='card-block'>
+      <div className='card-block py-2 px-3'>
+        <div className='d-flex justify-content-between'>
+          <div className='d-flex align-items-center mb-2' style={{ fontWeight: 500 }}>
+            <div>
+              <Link className='comment-author' to={`/profile/${username}`}>
+                <img src={image ? image : DEFAULT_AVATAR} className='comment-author-img' />
+              </Link>
+            </div>
+
+            <div className='d-flex flex-column ms-2'>
+              <Link className='comment-author' to={`/profile/${username}`}>
+                {username}
+              </Link>
+              <div className='date-posted m-0' style={{ fontSize: '12px' }}>
+                {format(createdAt, 'hh:mm - dd/MM/yyyy')}
+              </div>
+            </div>
+          </div>
+
+          {user.isSome() &&
+            (user.unwrap().username === username ||
+              user.unwrap().username === author ||
+              isAdmin()) && (
+              <div>
+                <IconButton
+                  color='secondary'
+                  onClick={() => onDeleteComment(encodeURIComponent(slug), id)}
+                  style={{ width: '30px', height: '30px' }}
+                >
+                  <i
+                    className='ion-trash-a'
+                    aria-label={`Delete comment ${index + 1}`}
+                    style={{ fontSize: '20px' }}
+                  ></i>
+                </IconButton>
+              </div>
+            )}
+        </div>
+
         <p className='card-text'>{body}</p>
       </div>
-      <div className='card-footer'>
+      {/*  */}
+      {/* <div className='card-footer'>
         <Link className='comment-author' to={`/profile/${username}`}>
-          <img src={image || DEFAULT_AVATAR} className='comment-author-img' />
+          <img src={image ? image : DEFAULT_AVATAR} className='comment-author-img' />
         </Link>
         &nbsp;
         <Link className='comment-author' to={`/profile/${username}`}>
           {username}
         </Link>
         <span className='date-posted'>{format(createdAt, 'hh:mm - dd/MM/yyyy')}</span>
-        {user.isSome() && user.unwrap().username === username && (
-          <span className='mod-options'>
-            <i
-              className='ion-trash-a'
-              aria-label={`Delete comment ${index + 1}`}
-              onClick={() => onDeleteComment(slug, id)}
-            ></i>
-          </span>
-        )}
-      </div>
+        {user.isSome() &&
+          (user.unwrap().username === username ||
+            user.unwrap().username === author ||
+            isAdmin()) && (
+            <span className='mod-options'>
+              <i
+                className='ion-trash-a'
+                aria-label={`Delete comment ${index + 1}`}
+                onClick={() => onDeleteComment(encodeURIComponent(slug), id)}
+              ></i>
+            </span>
+          )}
+      </div> */}
     </div>
   );
 }

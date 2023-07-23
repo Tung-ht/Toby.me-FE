@@ -7607,14 +7607,15 @@ footer .attribution {
 .article-page .card .comment-author-img {
   display: inline-block;
   vertical-align: middle;
-  height: 20px;
-  width: 20px;
+  height: 32px;
+  width: 32px;
   border-radius: 30px;
 }
 
 .article-page .card .comment-author {
   display: inline-block;
   vertical-align: middle;
+  text-decoration: none;
 }
 
 .article-page .card .date-posted {
