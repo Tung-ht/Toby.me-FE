@@ -52,6 +52,6 @@ export const ArticleEditorStyled = styled.div`
   }
 
   .MuiOutlinedInput-root {
-    height: 56px;
+    /* height: 56px; */
   }
 `;

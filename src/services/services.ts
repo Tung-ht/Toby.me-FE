@@ -196,3 +196,7 @@ export async function deleteArticle(slug: string): Promise<void> {
 export function adminDeleteArticle(slug: string) {
   return axios.delete(`articles/${slug}`);
 }
+
+export function getAllPinTags() {
+  return axios.get(`tags/pinned`);
+}
