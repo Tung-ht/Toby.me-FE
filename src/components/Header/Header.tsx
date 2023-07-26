@@ -81,7 +81,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function UserLinks({ user: { username, image } }: { user: any }) {
-  console.log('🚀 -> UserLinks -> image:', image);
   const { user } = useStore(({ app }) => app);
   const userRole = user.isSome() && user.map((x) => x.roles).unwrap();
 

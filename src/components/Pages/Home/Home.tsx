@@ -1,5 +1,5 @@
 import { Option } from '@hqoss/monads';
-import { getArticles, getFeed, getTags } from '../../../services/services';
+import { getAllPinTags, getArticles, getFeed, getTags } from '../../../services/services';
 import { store } from '../../../state/store';
 import { useStoreWithInitializer } from '../../../state/storeHooks';
 import { FeedFilters } from '../../../types/article';
@@ -15,6 +15,7 @@ import { styled } from 'styled-components';
 import Skeleton from '@material-ui/lab/Skeleton';
 import Chip from '@material-ui/core/Chip';
 import { TypeAnimation } from 'react-type-animation';
+import { useEffect, useState } from 'react';
 
 export function Home() {
   const { tags, selectedTab } = useStoreWithInitializer(({ home }) => home, load);
@@ -34,6 +35,7 @@ export function Home() {
         </div>
 
         <div className='col-md-3'>
+          <PinTags></PinTags>
           <HomeSidebar tags={tags} />
         </div>
       </ContainerPage>
@@ -162,6 +164,58 @@ function HomeSidebar({ tags }: { tags: Option<string[]> }) {
           </div>
         ),
       })}
+    </div>
+  );
+}
+
+function PinTags() {
+  const [pinTags, setPinTags] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleGetPinTags = async () => {
+    try {
+      setLoading(true);
+      const {
+        data: { tags },
+      } = await getAllPinTags();
+      setPinTags(tags);
+    } catch (error) {
+      console.log('🚀 error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleGetPinTags();
+  }, []);
+
+  return (
+    <div className='sidebar'>
+      <h5>Chủ để được ghim</h5>
+
+      {loading ? (
+        <>
+          <Skeleton variant='text' height={40} />
+          <Skeleton variant='text' height={40} />
+          <Skeleton variant='text' height={40} />
+        </>
+      ) : (
+        <>
+          {pinTags.map((tag) => {
+            return (
+              <Chip
+                icon={<i className='ion-pound' />}
+                className='px-2 me-1 mb-1'
+                size='small'
+                key={tag}
+                label={tag}
+                onClick={() => onTabChange(`# ${tag}`)}
+              />
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }
