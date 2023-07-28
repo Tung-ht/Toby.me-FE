@@ -200,3 +200,11 @@ export function adminDeleteArticle(slug: string) {
 export function getAllPinTags() {
   return axios.get(`tags/pinned`);
 }
+
+export function pinArticle(slug: string) {
+  return axios.put(`articles/pin/${encodeURIComponent(slug)}`);
+}
+
+export function unpinArticle(slug: string) {
+  return axios.put(`articles/unpin/${encodeURIComponent(slug)}`);
+}

@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { Article } from '../../types/article';
 import { styled } from 'styled-components';
-import { DEFAULT_AVATAR } from '../../config/settings';
+import { DEFAULT_AVATAR, TEXT_PIN_TAG } from '../../config/settings';
+import { pinArticle, unpinArticle } from '../../services/services';
+import { Button, CircularProgress } from '@material-ui/core';
+import { useEffect, useState } from 'react';
+import useToastCustom from '../../hooks/useToastCustom';
+import useRole from '../../hooks/useRole';
 
 export function ArticlePreview({
   article: {
@@ -22,13 +28,102 @@ export function ArticlePreview({
   isSubmitting: boolean;
   onFavoriteToggle?: () => void;
 }) {
+  const { notifySuccess, notifyError } = useToastCustom();
+  const { isAdmin } = useRole();
+
+  const [tagListRender, setTagListRender] = useState<any>([]);
+  const [loadingPin, setLoadingPin] = useState(false);
+  const [isArticlePinned, setIsArticlePinned] = useState(false);
+
+  const handlePinArticle = async (slug: string) => {
+    try {
+      setLoadingPin(true);
+      const rs = await pinArticle(slug);
+
+      if (tagListRender.includes(TEXT_PIN_TAG) === false) {
+        setTagListRender([...tagListRender, TEXT_PIN_TAG]);
+      }
+
+      notifySuccess('Ghim bài viết thành công');
+    } catch (error) {
+      console.log('🚀 error:', error);
+      notifyError('Ghim bài viết không thành công');
+    } finally {
+      setLoadingPin(false);
+    }
+  };
+
+  const handleUnpinArticle = async (slug: string) => {
+    try {
+      setLoadingPin(true);
+      const rs = await unpinArticle(slug);
+
+      if (tagListRender.includes(TEXT_PIN_TAG) === true) {
+        const list = tagListRender.filter((t: any) => t !== TEXT_PIN_TAG);
+        setTagListRender(list);
+      }
+
+      notifySuccess('Bỏ ghim bài viết thành công');
+    } catch (error) {
+      console.log('🚀 error:', error);
+      notifyError('Bỏ ghim bài viết không thành công');
+    } finally {
+      setLoadingPin(false);
+    }
+  };
+
+  useEffect(() => {
+    setTagListRender(tagList);
+
+    const rs = tagListRender.includes(TEXT_PIN_TAG);
+    setIsArticlePinned(rs);
+  }, [tagList]);
+
+  useEffect(() => {
+    const rs = tagListRender.includes(TEXT_PIN_TAG);
+    setIsArticlePinned(rs);
+  }, [tagListRender]);
+
   return (
     <ArticlePreviewStyled>
-      <Link to={`/profile/${username}`} className='wrapper-author'>
-        <img src={image || DEFAULT_AVATAR} className='author-avt' />
+      <div className='d-flex justify-content-between mb-2'>
+        <Link to={`/profile/${username}`} className='wrapper-author'>
+          <img src={image || DEFAULT_AVATAR} className='author-avt' />
+          <h5 className='author-name'>{username}</h5>
+        </Link>
 
-        <h5 className='author-name'>{username}</h5>
-      </Link>
+        {isAdmin() ? (
+          <>
+            {isArticlePinned ? (
+              <>
+                <Button
+                  color='primary'
+                  variant={'outlined'}
+                  style={{ textTransform: 'none' }}
+                  onClick={() => handleUnpinArticle(slug)}
+                >
+                  <i className='ion-pin me-2'></i> {'Đã ghim'}
+                  {loadingPin && <CircularProgress className='ms-2' color='primary' size={20} />}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  color='primary'
+                  variant={'text'}
+                  style={{ textTransform: 'none' }}
+                  onClick={() => handlePinArticle(slug)}
+                >
+                  <i className='ion-pin me-2'></i> {'Ghim'}
+                  {loadingPin && <CircularProgress className='ms-2' color='primary' size={20} />}
+                </Button>
+              </>
+            )}
+          </>
+        ) : (
+          <></>
+        )}
+      </div>
 
       <div className='post'>
         <Link to={`/article/${encodeURIComponent(slug)}`} className='title-post'>
@@ -54,7 +149,7 @@ export function ArticlePreview({
         </div>
       </div>
 
-      <TagList tagList={tagList} />
+      <TagList tagList={tagListRender} />
 
       {/* <div className='article-meta'>
         <Link to={`/profile/${username}`} className='author'>

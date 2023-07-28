@@ -14,8 +14,9 @@ import {
   makeStyles,
   createStyles,
   Divider,
+  TextField,
+  InputAdornment,
 } from '@material-ui/core';
-import { styled } from 'styled-components';
 import { Theme } from 'reapop';
 import axios from 'axios';
 import { store } from '../../state/store';
@@ -25,6 +26,12 @@ import { ADMIN } from '../../config/role';
 export function Header() {
   const { user } = useStore(({ app }) => app);
 
+  const [textSearch, setTextSearch] = useState('');
+
+  const handleSearch = () => {
+    console.log(textSearch);
+  };
+
   return (
     <HeaderStyled className='navbar navbar-light'>
       <div className='container'>
@@ -33,6 +40,35 @@ export function Header() {
         </a>
         <img src={logo} style={{ height: '40px', width: '40px' }} />
         <ul className='nav navbar-nav pull-xs-right'>
+          <li className='nav-item'>
+            <TextField
+              size='small'
+              variant='outlined'
+              className='input-search-header'
+              onChange={(e) => {
+                setTextSearch(e.target.value);
+              }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
+              InputProps={{
+                // startAdornment: (
+                //   <InputAdornment position='start'>
+                //     <i className={'ion-search'}></i>
+                //   </InputAdornment>
+                // ),
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <IconButton size='small' color='primary' onClick={handleSearch}>
+                      <i className={'ion-search'}></i>
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </li>
           <HashRouter>
             <NavItem text='Trang chính' icon='ion-home' href='/' />
 
