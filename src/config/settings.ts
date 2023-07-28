@@ -5,3 +5,4 @@ export default {
 };
 
 export const DEFAULT_AVATAR = `https://www.iconpacks.net/icons/1/free-user-icon-295-thumb.png`;
+export const TEXT_PIN_TAG = 'nổi bật'
