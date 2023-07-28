@@ -8,6 +8,7 @@ import { pinArticle, unpinArticle } from '../../services/services';
 import { Button, CircularProgress } from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import useToastCustom from '../../hooks/useToastCustom';
+import useRole from '../../hooks/useRole';
 
 export function ArticlePreview({
   article: {
@@ -28,6 +29,7 @@ export function ArticlePreview({
   onFavoriteToggle?: () => void;
 }) {
   const { notifySuccess, notifyError } = useToastCustom();
+  const { isAdmin } = useRole();
 
   const [tagListRender, setTagListRender] = useState<any>([]);
   const [loadingPin, setLoadingPin] = useState(false);
@@ -90,30 +92,36 @@ export function ArticlePreview({
           <h5 className='author-name'>{username}</h5>
         </Link>
 
-        {isArticlePinned ? (
+        {isAdmin() ? (
           <>
-            <Button
-              color='primary'
-              variant={'outlined'}
-              style={{ textTransform: 'none' }}
-              onClick={() => handleUnpinArticle(slug)}
-            >
-              <i className='ion-pin me-2'></i> {'Đã ghim'}
-              {loadingPin && <CircularProgress className='ms-2' color='primary' size={20} />}
-            </Button>
+            {isArticlePinned ? (
+              <>
+                <Button
+                  color='primary'
+                  variant={'outlined'}
+                  style={{ textTransform: 'none' }}
+                  onClick={() => handleUnpinArticle(slug)}
+                >
+                  <i className='ion-pin me-2'></i> {'Đã ghim'}
+                  {loadingPin && <CircularProgress className='ms-2' color='primary' size={20} />}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  color='primary'
+                  variant={'text'}
+                  style={{ textTransform: 'none' }}
+                  onClick={() => handlePinArticle(slug)}
+                >
+                  <i className='ion-pin me-2'></i> {'Ghim'}
+                  {loadingPin && <CircularProgress className='ms-2' color='primary' size={20} />}
+                </Button>
+              </>
+            )}
           </>
         ) : (
-          <>
-            <Button
-              color='primary'
-              variant={'text'}
-              style={{ textTransform: 'none' }}
-              onClick={() => handlePinArticle(slug)}
-            >
-              <i className='ion-pin me-2'></i> {'Ghim'}
-              {loadingPin && <CircularProgress className='ms-2' color='primary' size={20} />}
-            </Button>
-          </>
+          <></>
         )}
       </div>
 
