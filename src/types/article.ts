@@ -56,3 +56,9 @@ export interface FeedFilters {
   limit?: number;
   offset?: number;
 }
+
+export interface SearchArticleParams {
+  limit: number;
+  offset: number;
+  contentSearchParam: string;
+}

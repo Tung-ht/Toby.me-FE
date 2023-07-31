@@ -23,10 +23,12 @@ export function ArticlePreview({
   },
   isSubmitting,
   onFavoriteToggle,
+  isLike = true,
 }: {
   article: Article;
   isSubmitting: boolean;
   onFavoriteToggle?: () => void;
+  isLike?: boolean;
 }) {
   const { notifySuccess, notifyError } = useToastCustom();
   const { isAdmin } = useRole();
@@ -135,17 +137,19 @@ export function ArticlePreview({
 
       <div className='container-info'>
         <div className='info-list'>
-          <div className='info-item'>{format(createdAt, 'hh:mm - dd/MM/yyyy')}</div>
+          <div className='info-item'>{format(new Date(createdAt), 'hh:mm - dd/MM/yyyy')}</div>
         </div>
-
         <div>
-          <button
-            className={`btn-like ${favorited ? 'btn-liked' : ''}`}
-            disabled={isSubmitting}
-            onClick={onFavoriteToggle}
-          >
-            <i className='ion-heart'></i> {favoritesCount}
-          </button>
+          {isLike ?? (
+            <button
+              className={`btn-like ${favorited ? 'btn-liked' : ''}`}
+              disabled={isSubmitting}
+              onClick={onFavoriteToggle}
+              style={{ cursor: 'pointer' }}
+            >
+              <i className='ion-heart'></i> {favoritesCount}
+            </button>
+          )}
         </div>
       </div>
 

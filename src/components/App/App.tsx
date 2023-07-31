@@ -17,6 +17,7 @@ import { ProfilePage } from '../Pages/ProfilePage/ProfilePage';
 import { Register } from '../Pages/Register/Register';
 import { Settings } from '../Pages/Settings/Settings';
 import { endLoad, loadUser } from './App.slice';
+import SearchArticle from '../Pages/SearchArticle/SearchArticle';
 
 export function App() {
   const { loading, user } = useStoreWithInitializer(({ app }) => app, load);
@@ -58,6 +59,9 @@ export function App() {
             </Route>
             <Route path='/article/:slug'>
               <ArticlePage />
+            </Route>
+            <Route exact path='/search-article/:searchParams'>
+              <SearchArticle />
             </Route>
             <Route exact path='/'>
               <Home />
