@@ -43,6 +43,7 @@ import useToastCustom from '../../../hooks/useToastCustom';
 import { DEFAULT_AVATAR } from '../../../config/settings';
 import { styled } from 'styled-components';
 import { ButtonStyled } from '../../../styles/common';
+import SkeletonArticleViewer from '../../Common/SkeletonArticleViewer';
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -60,7 +61,11 @@ export function ArticlePage() {
   }, [slug]);
 
   return article.match({
-    none: () => <div className='container page'>Đang tải bài viết ...</div>,
+    none: () => (
+      <div className='container page'>
+        <SkeletonArticleViewer></SkeletonArticleViewer>
+      </div>
+    ),
     some: (article: any) => {
       return (
         <ArticlePageStyled className='article-page'>
@@ -215,7 +220,7 @@ function NonOwnerArticleMetaActions({
   const handleDeleteArticle = async () => {
     try {
       setLoading(true);
-      const rs = await adminDeleteArticle(slug);
+      const rs = await adminDeleteArticle(encodeURIComponent(slug));
 
       if (rs.status === 200) {
         notifySuccess('Bài viết đã bị xóa');

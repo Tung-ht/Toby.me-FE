@@ -11,6 +11,7 @@ import {
   FeedFilters,
   MultipleArticles,
   multipleArticlesDecoder,
+  SearchArticleParams,
 } from '../types/article';
 import { Comment, commentDecoder } from '../types/comment';
 import { GenericErrors, genericErrorsDecoder } from '../types/error';
@@ -207,4 +208,8 @@ export function pinArticle(slug: string) {
 
 export function unpinArticle(slug: string) {
   return axios.put(`articles/unpin/${encodeURIComponent(slug)}`);
+}
+
+export function searchArticle(params: SearchArticleParams) {
+  return axios.get('articles/search', { params: params });
 }

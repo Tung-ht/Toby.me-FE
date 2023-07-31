@@ -29,7 +29,12 @@ export function Header() {
   const [textSearch, setTextSearch] = useState('');
 
   const handleSearch = () => {
-    console.log(textSearch);
+    const value = textSearch.trim();
+    if (value === '') {
+      return;
+    }
+    setTextSearch('');
+    location.hash = `#/search-article/${encodeURIComponent(value)}`;
   };
 
   return (
@@ -48,6 +53,7 @@ export function Header() {
               onChange={(e) => {
                 setTextSearch(e.target.value);
               }}
+              value={textSearch}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   handleSearch();

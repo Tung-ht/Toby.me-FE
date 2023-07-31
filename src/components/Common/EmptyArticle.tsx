@@ -4,7 +4,7 @@ import { styled } from 'styled-components';
 function EmptyArticle() {
   return (
     <EmptyArticleStyled>
-      <h4>Chưa có bài viết nào</h4>
+      <h4>Không có bài viết nào</h4>
       <i className='ion-ios-paper-outline'></i>
     </EmptyArticleStyled>
   );
