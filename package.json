@@ -20,6 +20,7 @@
     "@types/react-dom": "^16.9.14",
     "@types/react-redux": "^7.1.18",
     "@types/react-router-dom": "^5.1.8",
+    "@types/ws": "^8.5.5",
     "axios": "^0.21.1",
     "date-fns": "^2.23.0",
     "decoders": "^1.25.1",

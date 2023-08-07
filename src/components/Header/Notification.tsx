@@ -26,6 +26,24 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+// eslint-disable-next-line no-var
+declare var WebSocket: {
+  prototype: WebSocket;
+  new (
+    uri: string,
+    protocols?: string | string[] | null,
+    options?: {
+      headers: { [headerName: string]: string };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [optionName: string]: any;
+    } | null
+  ): WebSocket;
+  readonly CLOSED: number;
+  readonly CLOSING: number;
+  readonly CONNECTING: number;
+  readonly OPEN: number;
+};
+
 function Notification() {
   const anchorRefNoti = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -45,11 +63,17 @@ function Notification() {
   //   },
   // });
 
+  // try {
+  //   const socket = new WebSocket(`${setting.wsBaseUrl}?access_token=${user.unwrap().token}`, []);
+  //   console.log('🚀 -> Notification -> socket:', socket);
+  // } catch (error) {
+  //   console.log('🚀 -> Notification -> error:', error);
+  // }
   const { sendMessage, lastMessage, readyState } = useWebSocket(`${setting.wsBaseUrl}`, {
-    share: true,
     queryParams: {
       access_token: user.unwrap().token,
     },
+    protocols: ['0'],
     onOpen: () => console.log('Connected ws!'),
     onError(event) {
       console.log('Connect ws failed:', event);
@@ -65,6 +89,14 @@ function Notification() {
   }[readyState];
 
   console.log('🚀 -> Notification -> connectionStatus:', connectionStatus);
+
+  // const ws = new WebSocket(`${setting.wsBaseUrl}?access_token=${user.unwrap().token}`, null, {
+  //   headers: {
+  //     ['ngrok-skip-browser-warning']: 'any value',
+  //     Origin: 'cookie',
+  //   },
+  // });
+  // console.log('🚀 -> ws -> ws:', ws);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
