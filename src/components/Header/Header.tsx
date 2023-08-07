@@ -22,6 +22,7 @@ import axios from 'axios';
 import { store } from '../../state/store';
 import { logout } from '../App/App.slice';
 import { ADMIN } from '../../config/role';
+import Notification from './Notification';
 
 export function Header() {
   const { user } = useStore(({ app }) => app);
@@ -160,6 +161,8 @@ function UserLinks({ user: { username, image } }: { user: any }) {
   return (
     <Fragment>
       <NavItem text='Viết bài' href='/editor' icon='ion-compose' />
+
+      <Notification></Notification>
 
       <IconButton
         ref={anchorRef}

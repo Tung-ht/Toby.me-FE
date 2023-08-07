@@ -116,7 +116,7 @@ async function getFeedOrGlobalArticles(filters: FeedFilters = {}) {
   const { selectedTab } = store.getState().home;
   const finalFilters = {
     ...filters,
-    tag: selectedTab.slice(2),
+    tag: encodeURIComponent(selectedTab.slice(2)),
   };
 
   return await (selectedTab === 'Đang theo dõi' ? getFeed : getArticles)(
