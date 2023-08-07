@@ -35,6 +35,7 @@
     "react-scripts": "^4.0.3",
     "react-transition-group": "^4.4.5",
     "react-type-animation": "^3.1.0",
+    "react-use-websocket": "^4.3.1",
     "reapop": "^4.2.1",
     "styled-components": "^6.0.0-rc.3",
     "typescript": "^4.3.5",
