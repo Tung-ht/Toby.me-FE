@@ -57,7 +57,7 @@ export function App() {
             <Route path='/profile/:username'>
               <ProfilePage />
             </Route>
-            <Route path='/article/:slug'>
+            <Route path='/article/:slug/:commentId?'>
               <ArticlePage />
             </Route>
             <Route exact path='/search-article/:searchParams'>

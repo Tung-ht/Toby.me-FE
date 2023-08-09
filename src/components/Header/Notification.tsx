@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Badge,
   Button,
@@ -28,6 +29,7 @@ import { Notifications, TypeNotifications } from './notiTypes';
 import { styled } from 'styled-components';
 import { format } from 'date-fns';
 import { Skeleton } from '@material-ui/lab';
+import useToastCustom from '../../hooks/useToastCustom';
 
 // ==============
 const useStyles = makeStyles((theme: Theme) =>
@@ -71,6 +73,8 @@ declare var WebSocket: {
 function Notification() {
   const anchorRefNoti = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+
+  const { notifyError } = useToastCustom();
 
   const classes = useStyles();
 
@@ -173,8 +177,8 @@ function Notification() {
       const { data } = await getCountUnreadNotification(userId);
 
       setCountUnread(data);
-    } catch (error) {
-      console.log('🚀 - handleCountUnread - error: ', error);
+    } catch (error: any) {
+      console.log('🚀 -> handleCountUnread -> error:', error);
     }
   };
 
@@ -188,8 +192,7 @@ function Notification() {
     }
 
     if (notification.type === TypeNotifications.LIKE_POST) {
-      // return handleNotificationLikePost(notification);
-      return handleNotificationComment(notification);
+      return handleNotificationLikePost(notification);
     }
   };
 
@@ -207,14 +210,37 @@ function Notification() {
       }
 
       location.hash = `#/profile/${username}`;
-    } catch (error) {
-      console.log('🚀 -> handleNotificationFollow -> error:', error);
+    } catch (error: any) {
+      const errorList = error?.response?.data?.errors?.body;
+
+      if (errorList) {
+        notifyError('', errorList.join(', '));
+      }
     }
   };
 
-  // const handleNotificationLikePost = (notification: Notifications) => {
-  //   console.log('🚀 - handleNotificationLikePost - notification: ', notification);
-  // };
+  const handleNotificationLikePost = async (notification: Notifications) => {
+    try {
+      const { data: slug } = await getSlugArticleById(notification.postId);
+
+      if (notification.isRead === false) {
+        const rs = await readNotification(notification.id);
+
+        if (rs.status === 200) {
+          handleGetAllNotifications();
+          handleCountUnread();
+        }
+      }
+
+      location.hash = `#/article/${encodeURIComponent(slug)}`;
+    } catch (error: any) {
+      const errorList = error?.response?.data?.errors?.body;
+
+      if (errorList) {
+        notifyError('', errorList.join(', '));
+      }
+    }
+  };
 
   const handleNotificationComment = async (notification: Notifications) => {
     try {
@@ -229,9 +255,13 @@ function Notification() {
         }
       }
 
-      location.hash = `#/article/${encodeURIComponent(slug)}`;
-    } catch (error) {
-      console.log('🚀 -> handleNotificationComment -> error:', error);
+      location.hash = `#/article/${encodeURIComponent(slug)}/${notification.commentId}`;
+    } catch (error: any) {
+      const errorList = error?.response?.data?.errors?.body;
+
+      if (errorList) {
+        notifyError('', errorList.join(', '));
+      }
     }
   };
 
