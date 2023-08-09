@@ -16,7 +16,12 @@ import { Theme } from 'reapop';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useStore } from '../../state/storeHooks';
 import setting from '../../config/settings';
-import { getAllNotification, getCountUnreadNotification } from '../../services/services';
+import {
+  getAllNotification,
+  getCountUnreadNotification,
+  getUsernameById,
+  readNotification,
+} from '../../services/services';
 import { Notifications, TypeNotifications } from './notiTypes';
 import { styled } from 'styled-components';
 import { format } from 'date-fns';
@@ -185,8 +190,27 @@ function Notification() {
     }
   };
 
-  const handleNotificationFollow = (notification: Notifications) => {
+  const handleNotificationFollow = async (notification: Notifications) => {
     console.log('🚀 - handleNotificationFollow - notification: ', notification);
+
+    try {
+      const { data: username } = await getUsernameById(notification.fromUserId);
+
+      const rs = await readNotification(notification.id);
+
+      if (rs.status === 200) {
+        location.hash = `#/profile/${username}`;
+
+        if (notification.isRead === false) {
+          handleGetAllNotifications();
+          handleCountUnread();
+        }
+      }
+
+      console.log('🚀 -> handleNotificationFollow -> data:username:', username);
+    } catch (error) {
+      console.log('🚀 -> handleNotificationFollow -> error:', error);
+    }
   };
 
   const handleNotificationLikePost = (notification: Notifications) => {
@@ -259,7 +283,14 @@ function Notification() {
                 autoFocusItem={open}
                 id='menu-list-grow'
                 onKeyDown={handleListKeyDown}
+                style={{ width: 300 }}
               >
+                {notifications.length === 0 && (
+                  <div className='p-2' style={{ textAlign: 'center' }}>
+                    Không có thông báo nào
+                  </div>
+                )}
+
                 {notifications.map((item) => (
                   <MenuItemStyled
                     key={item.id}
@@ -267,9 +298,9 @@ function Notification() {
                       handleClose(e);
                       handleClickNotification(item);
                     }}
-                    className='unread'
+                    className={item.isRead ? '' : 'unread'}
                   >
-                    <div className='d-flex justify-content-center'>
+                    <div className='d-flex justify-content-start'>
                       <div className='me-2'>
                         {item.type === TypeNotifications.FOLLOW && (
                           <i
