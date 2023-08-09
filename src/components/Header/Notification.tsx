@@ -19,7 +19,9 @@ import setting from '../../config/settings';
 import {
   getAllNotification,
   getCountUnreadNotification,
+  getSlugArticleById,
   getUsernameById,
+  readAllNotifications,
   readNotification,
 } from '../../services/services';
 import { Notifications, TypeNotifications } from './notiTypes';
@@ -186,39 +188,73 @@ function Notification() {
     }
 
     if (notification.type === TypeNotifications.LIKE_POST) {
-      return handleNotificationLikePost(notification);
+      // return handleNotificationLikePost(notification);
+      return handleNotificationComment(notification);
     }
   };
 
   const handleNotificationFollow = async (notification: Notifications) => {
-    console.log('🚀 - handleNotificationFollow - notification: ', notification);
-
     try {
       const { data: username } = await getUsernameById(notification.fromUserId);
 
-      const rs = await readNotification(notification.id);
+      if (notification.isRead === false) {
+        const rs = await readNotification(notification.id);
 
-      if (rs.status === 200) {
-        location.hash = `#/profile/${username}`;
-
-        if (notification.isRead === false) {
+        if (rs.status === 200) {
           handleGetAllNotifications();
           handleCountUnread();
         }
       }
 
-      console.log('🚀 -> handleNotificationFollow -> data:username:', username);
+      location.hash = `#/profile/${username}`;
     } catch (error) {
       console.log('🚀 -> handleNotificationFollow -> error:', error);
     }
   };
 
-  const handleNotificationLikePost = (notification: Notifications) => {
-    console.log('🚀 - handleNotificationLikePost - notification: ', notification);
+  // const handleNotificationLikePost = (notification: Notifications) => {
+  //   console.log('🚀 - handleNotificationLikePost - notification: ', notification);
+  // };
+
+  const handleNotificationComment = async (notification: Notifications) => {
+    try {
+      const { data: slug } = await getSlugArticleById(notification.postId);
+
+      if (notification.isRead === false) {
+        const rs = await readNotification(notification.id);
+
+        if (rs.status === 200) {
+          handleGetAllNotifications();
+          handleCountUnread();
+        }
+      }
+
+      location.hash = `#/article/${encodeURIComponent(slug)}`;
+    } catch (error) {
+      console.log('🚀 -> handleNotificationComment -> error:', error);
+    }
   };
 
-  const handleNotificationComment = (notification: Notifications) => {
-    console.log('🚀 - handleNotificationComment - notification: ', notification);
+  const handleReadAllNotification = async () => {
+    if (notifications.length === 0) {
+      return;
+    }
+
+    const userId = user.unwrap().id;
+    if (!userId || userId === -1) {
+      return;
+    }
+
+    try {
+      const rs = await readAllNotifications(userId);
+
+      if (rs.status === 200) {
+        handleGetAllNotifications();
+        handleCountUnread();
+      }
+    } catch (error) {
+      console.log('🚀 -> handleReadAllNotification -> error:', error);
+    }
   };
 
   useEffect(() => {
@@ -334,7 +370,12 @@ function Notification() {
                 className='d-flex justify-content-center'
                 style={{ borderTop: '1px solid #cdcdcd' }}
               >
-                <Button size='small' color='primary' style={{ textTransform: 'none' }}>
+                <Button
+                  size='small'
+                  color='primary'
+                  style={{ textTransform: 'none' }}
+                  onClick={handleReadAllNotification}
+                >
                   Đánh giấu tất cả đã đọc
                 </Button>
               </div>

@@ -230,3 +230,11 @@ export function readNotification(id: number) {
 export function getUsernameById(userId: string | number) {
   return axios.get(`profiles/username?id=${userId}`);
 }
+
+export function getSlugArticleById(id: number) {
+  return axios.get(`articles/slug?id=${id}`);
+}
+
+export function readAllNotifications(userId: string | number) {
+  return axios.put(`notifications/read-all?userId=${userId}`);
+}
