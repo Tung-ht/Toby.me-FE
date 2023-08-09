@@ -50,7 +50,6 @@ export function Login() {
       const token = await login(email, password);
 
       const resultDecoded: any = await jwt_decode(token);
-      console.log('🚀 - signIn - resultDecoded: ', resultDecoded);
 
       const user = {
         token: token,

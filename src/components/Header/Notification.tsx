@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Badge,
   Button,
@@ -16,11 +17,19 @@ import { Theme } from 'reapop';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useStore } from '../../state/storeHooks';
 import setting from '../../config/settings';
-import { getAllNotification, getCountUnreadNotification } from '../../services/services';
+import {
+  getAllNotification,
+  getCountUnreadNotification,
+  getSlugArticleById,
+  getUsernameById,
+  readAllNotifications,
+  readNotification,
+} from '../../services/services';
 import { Notifications, TypeNotifications } from './notiTypes';
 import { styled } from 'styled-components';
 import { format } from 'date-fns';
 import { Skeleton } from '@material-ui/lab';
+import useToastCustom from '../../hooks/useToastCustom';
 
 // ==============
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
       background: '#ffffff',
       boxShadow: 'rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px',
       borderRadius: 4,
-      zIndex: 1,
+      zIndex: 2,
     },
   })
 );
@@ -64,6 +73,8 @@ declare var WebSocket: {
 function Notification() {
   const anchorRefNoti = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+
+  const { notifyError } = useToastCustom();
 
   const classes = useStyles();
 
@@ -166,8 +177,8 @@ function Notification() {
       const { data } = await getCountUnreadNotification(userId);
 
       setCountUnread(data);
-    } catch (error) {
-      console.log('🚀 - handleCountUnread - error: ', error);
+    } catch (error: any) {
+      console.log('🚀 -> handleCountUnread -> error:', error);
     }
   };
 
@@ -185,16 +196,95 @@ function Notification() {
     }
   };
 
-  const handleNotificationFollow = (notification: Notifications) => {
-    console.log('🚀 - handleNotificationFollow - notification: ', notification);
+  const handleNotificationFollow = async (notification: Notifications) => {
+    try {
+      const { data: username } = await getUsernameById(notification.fromUserId);
+
+      if (notification.isRead === false) {
+        const rs = await readNotification(notification.id);
+
+        if (rs.status === 200) {
+          handleGetAllNotifications();
+          handleCountUnread();
+        }
+      }
+
+      location.hash = `#/profile/${username}`;
+    } catch (error: any) {
+      const errorList = error?.response?.data?.errors?.body;
+
+      if (errorList) {
+        notifyError('', errorList.join(', '));
+      }
+    }
   };
 
-  const handleNotificationLikePost = (notification: Notifications) => {
-    console.log('🚀 - handleNotificationLikePost - notification: ', notification);
+  const handleNotificationLikePost = async (notification: Notifications) => {
+    try {
+      const { data: slug } = await getSlugArticleById(notification.postId);
+
+      if (notification.isRead === false) {
+        const rs = await readNotification(notification.id);
+
+        if (rs.status === 200) {
+          handleGetAllNotifications();
+          handleCountUnread();
+        }
+      }
+
+      location.hash = `#/article/${encodeURIComponent(slug)}`;
+    } catch (error: any) {
+      const errorList = error?.response?.data?.errors?.body;
+
+      if (errorList) {
+        notifyError('', errorList.join(', '));
+      }
+    }
   };
 
-  const handleNotificationComment = (notification: Notifications) => {
-    console.log('🚀 - handleNotificationComment - notification: ', notification);
+  const handleNotificationComment = async (notification: Notifications) => {
+    try {
+      const { data: slug } = await getSlugArticleById(notification.postId);
+
+      if (notification.isRead === false) {
+        const rs = await readNotification(notification.id);
+
+        if (rs.status === 200) {
+          handleGetAllNotifications();
+          handleCountUnread();
+        }
+      }
+
+      location.hash = `#/article/${encodeURIComponent(slug)}/${notification.commentId}`;
+    } catch (error: any) {
+      const errorList = error?.response?.data?.errors?.body;
+
+      if (errorList) {
+        notifyError('', errorList.join(', '));
+      }
+    }
+  };
+
+  const handleReadAllNotification = async () => {
+    if (notifications.length === 0) {
+      return;
+    }
+
+    const userId = user.unwrap().id;
+    if (!userId || userId === -1) {
+      return;
+    }
+
+    try {
+      const rs = await readAllNotifications(userId);
+
+      if (rs.status === 200) {
+        handleGetAllNotifications();
+        handleCountUnread();
+      }
+    } catch (error) {
+      console.log('🚀 -> handleReadAllNotification -> error:', error);
+    }
   };
 
   useEffect(() => {
@@ -206,7 +296,7 @@ function Notification() {
     <div style={{ display: 'inline-block' }}>
       <IconButton
         ref={anchorRefNoti}
-        aria-controls={open ? 'menu-list-grow' : undefined}
+        aria-controls={open ? 'menu-list-notification' : undefined}
         aria-haspopup='true'
         onClick={handleToggle}
         color='primary'
@@ -257,9 +347,16 @@ function Notification() {
             <>
               <MenuListStyled
                 autoFocusItem={open}
-                id='menu-list-grow'
+                id='menu-list-notification'
                 onKeyDown={handleListKeyDown}
+                style={{ width: 300 }}
               >
+                {notifications.length === 0 && (
+                  <div className='p-2' style={{ textAlign: 'center' }}>
+                    Không có thông báo nào
+                  </div>
+                )}
+
                 {notifications.map((item) => (
                   <MenuItemStyled
                     key={item.id}
@@ -267,9 +364,9 @@ function Notification() {
                       handleClose(e);
                       handleClickNotification(item);
                     }}
-                    className='unread'
+                    className={item.isRead ? '' : 'unread'}
                   >
-                    <div className='d-flex justify-content-center'>
+                    <div className='d-flex justify-content-start'>
                       <div className='me-2'>
                         {item.type === TypeNotifications.FOLLOW && (
                           <i
@@ -303,7 +400,12 @@ function Notification() {
                 className='d-flex justify-content-center'
                 style={{ borderTop: '1px solid #cdcdcd' }}
               >
-                <Button size='small' color='primary' style={{ textTransform: 'none' }}>
+                <Button
+                  size='small'
+                  color='primary'
+                  style={{ textTransform: 'none' }}
+                  onClick={handleReadAllNotification}
+                >
                   Đánh giấu tất cả đã đọc
                 </Button>
               </div>
@@ -311,6 +413,21 @@ function Notification() {
           </ClickAwayListener>
         )}
       </Popper>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100vh',
+            zIndex: 1,
+            opacity: 0,
+          }}
+          onClick={handleClose}
+        ></div>
+      )}
     </div>
   );
 }

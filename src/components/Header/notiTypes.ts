@@ -9,7 +9,7 @@ export interface Notifications {
   createdAt: string;
   updatedAt: string;
   type: TypeNotifications | string;
-  postId: string;
+  postId: number;
   commentId: string;
   fromUserId: string;
   toUserId: string;

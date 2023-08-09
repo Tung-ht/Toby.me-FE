@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Option } from '@hqoss/monads';
 import { format } from 'date-fns';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   adminDeleteArticle,
@@ -44,6 +44,7 @@ import { DEFAULT_AVATAR } from '../../../config/settings';
 import { styled } from 'styled-components';
 import { ButtonStyled } from '../../../styles/common';
 import SkeletonArticleViewer from '../../Common/SkeletonArticleViewer';
+import queryString from 'query-string';
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -415,6 +416,7 @@ function CommentSection({
   commentSection: CommentSectionState;
   author: string;
 }) {
+  const { commentId } = useParams<{ commentId: string }>();
   return (
     <div className='row'>
       <div className='col-xs-12 col-md-8 offset-md-2'>
@@ -447,6 +449,7 @@ function CommentSection({
                   user={user}
                   index={index}
                   author={author}
+                  commentId={commentId}
                 />
               ))}
             </Fragment>
@@ -518,17 +521,35 @@ function ArticleComment({
   index,
   user,
   author,
+  commentId,
 }: {
   comment: Comment;
   slug: string;
   index: number;
   user: Option<User>;
   author: string;
+  commentId: string | undefined;
 }) {
   const { isAdmin } = useRole();
 
+  const myRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (commentId && commentId.toString() === id.toString()) {
+      if (myRef) {
+        myRef?.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [commentId, id, myRef]);
+
   return (
-    <div className='card'>
+    <div
+      className={
+        commentId && commentId.toString() === id.toString() ? 'card comment-focus' : 'card'
+      }
+      id={`${id}`}
+      ref={myRef}
+    >
       <div className='card-block py-2 px-3'>
         <div className='d-flex justify-content-between'>
           <div className='d-flex align-items-center mb-2' style={{ fontWeight: 500 }}>

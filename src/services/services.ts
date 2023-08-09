@@ -222,3 +222,19 @@ export function getAllNotification(userId: string | number) {
 export function getCountUnreadNotification(userId: string | number) {
   return axios.get(`notifications/count-unread?userId=${userId}`);
 }
+
+export function readNotification(id: number) {
+  return axios.put(`notifications/read/${id}`);
+}
+
+export function getUsernameById(userId: string | number) {
+  return axios.get(`profiles/username?id=${userId}`);
+}
+
+export function getSlugArticleById(id: number) {
+  return axios.get(`articles/slug?id=${id}`);
+}
+
+export function readAllNotifications(userId: string | number) {
+  return axios.put(`notifications/read-all?userId=${userId}`);
+}
