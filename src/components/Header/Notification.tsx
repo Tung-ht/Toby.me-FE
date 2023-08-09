@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
       background: '#ffffff',
       boxShadow: 'rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px',
       borderRadius: 4,
-      zIndex: 1,
+      zIndex: 2,
     },
   })
 );
@@ -296,7 +296,7 @@ function Notification() {
     <div style={{ display: 'inline-block' }}>
       <IconButton
         ref={anchorRefNoti}
-        aria-controls={open ? 'menu-list-grow' : undefined}
+        aria-controls={open ? 'menu-list-notification' : undefined}
         aria-haspopup='true'
         onClick={handleToggle}
         color='primary'
@@ -347,7 +347,7 @@ function Notification() {
             <>
               <MenuListStyled
                 autoFocusItem={open}
-                id='menu-list-grow'
+                id='menu-list-notification'
                 onKeyDown={handleListKeyDown}
                 style={{ width: 300 }}
               >
@@ -413,6 +413,21 @@ function Notification() {
           </ClickAwayListener>
         )}
       </Popper>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100vh',
+            zIndex: 1,
+            opacity: 0,
+          }}
+          onClick={handleClose}
+        ></div>
+      )}
     </div>
   );
 }
