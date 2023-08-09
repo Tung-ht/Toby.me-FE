@@ -213,3 +213,12 @@ export function unpinArticle(slug: string) {
 export function searchArticle(params: SearchArticleParams) {
   return axios.get('articles/search', { params: params });
 }
+//
+
+export function getAllNotification(userId: string | number) {
+  return axios.get(`notifications?userId=${userId}`);
+}
+
+export function getCountUnreadNotification(userId: string | number) {
+  return axios.get(`notifications/count-unread?userId=${userId}`);
+}
