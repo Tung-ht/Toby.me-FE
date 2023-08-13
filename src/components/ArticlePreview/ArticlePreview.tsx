@@ -28,7 +28,7 @@ export function ArticlePreview({
   article: Article;
   isSubmitting: boolean;
   onFavoriteToggle?: () => void;
-  isLike?: boolean;
+  isLike: boolean;
 }) {
   const { notifySuccess, notifyError } = useToastCustom();
   const { isAdmin } = useRole();
@@ -140,7 +140,7 @@ export function ArticlePreview({
           <div className='info-item'>{format(new Date(createdAt), 'hh:mm - dd/MM/yyyy')}</div>
         </div>
         <div>
-          {isLike ?? (
+          {isLike && (
             <button
               className={`btn-like ${favorited ? 'btn-liked' : ''}`}
               disabled={isSubmitting}

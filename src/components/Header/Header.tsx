@@ -175,7 +175,17 @@ function UserLinks({ user: { username, image } }: { user: any }) {
       >
         <div className='d-flex align-items-center'>
           <div className='me-2' style={{ fontSize: '18px', fontWeight: 600 }}>
-            {username}
+            <div
+              style={{
+                maxWidth: 110,
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'block',
+                overflow: 'hidden',
+              }}
+            >
+              {username}
+            </div>
           </div>
           <img
             src={image}

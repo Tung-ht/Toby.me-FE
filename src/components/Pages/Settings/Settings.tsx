@@ -89,6 +89,7 @@ export function Settings() {
 
       // location.hash = '/';
     } catch (error: any) {
+      console.log('🚀 -> onSubmitForm -> error:', error);
       const errorList = error?.response?.data?.errors?.body;
       console.log('🚀 -> onSubmitForm -> errorList:', errorList);
       if (errorList) {

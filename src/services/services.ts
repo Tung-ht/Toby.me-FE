@@ -106,7 +106,10 @@ export async function unfavoriteArticle(slug: string): Promise<Article> {
 
 export async function updateSettings(user: UpdateUserSettings): Promise<any> {
   const { data } = await axios.put('user', { user });
-  return data;
+  // return data;
+  const token = localStorage.getItem('token');
+  data.user.token = token;
+  return guard(object({ user: userDecoder }))(data).user;
 }
 
 export async function signUp(user: UserForRegistration) {
