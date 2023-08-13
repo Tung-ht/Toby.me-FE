@@ -111,6 +111,7 @@ function ArticleList({ articles }: { articles: ArticleViewerState['articles'] })
             article={article}
             isSubmitting={isSubmitting}
             onFavoriteToggle={isSubmitting ? undefined : onFavoriteToggle(index, article)}
+            isLike={true}
           />
         ))}
       </Fragment>
