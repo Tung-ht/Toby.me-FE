@@ -44,7 +44,6 @@ import { DEFAULT_AVATAR } from '../../../config/settings';
 import { styled } from 'styled-components';
 import { ButtonStyled } from '../../../styles/common';
 import SkeletonArticleViewer from '../../Common/SkeletonArticleViewer';
-import queryString from 'query-string';
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();

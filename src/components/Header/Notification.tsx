@@ -52,29 +52,11 @@ const StyledBadge = withStyles((theme) => ({
   },
 }))(Badge);
 
-// eslint-disable-next-line no-var
-declare var WebSocket: {
-  prototype: WebSocket;
-  new (
-    uri: string,
-    protocols?: string | string[] | null,
-    options?: {
-      headers: { [headerName: string]: string };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      [optionName: string]: any;
-    } | null
-  ): WebSocket;
-  readonly CLOSED: number;
-  readonly CLOSING: number;
-  readonly CONNECTING: number;
-  readonly OPEN: number;
-};
-
 function Notification() {
   const anchorRefNoti = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
 
-  const { notifyError } = useToastCustom();
+  const { notifyError, notifyInfo, notifySuccess, notifyWarning } = useToastCustom();
 
   const classes = useStyles();
 
@@ -89,48 +71,62 @@ function Notification() {
   const [loadingNoti, setLoadingNoti] = useState(false);
   const [countUnread, setCountUnread] = useState(0);
 
-  // useWebSocket(`${setting.wsBaseUrl}?access_token=${user.unwrap().token}`, {
-  //   onOpen: () => {
-  //     console.log('WebSocket connection established.');
-  //   },
-  // });
+  // handle ws
+  const { lastMessage, readyState } = useWebSocket(`${setting.wsBaseUrl}`, {
+    queryParams: {
+      access_token: user.unwrap().token,
+    },
+    protocols: ['0'],
+    onOpen: () => console.log('Connected ws!'),
+    onError(event) {
+      console.log('Connect ws failed:', event);
+    },
+  });
 
-  // try {
-  //   const socket = new WebSocket(`${setting.wsBaseUrl}?access_token=${user.unwrap().token}`, []);
-  //   console.log('🚀 -> Notification -> socket:', socket);
-  // } catch (error) {
-  //   console.log('🚀 -> Notification -> error:', error);
-  // }
-  // const { sendMessage, lastMessage, readyState } = useWebSocket(`${setting.wsBaseUrl}`, {
-  //   queryParams: {
-  //     access_token: user.unwrap().token,
-  //   },
-  //   protocols: ['0'],
-  //   onOpen: () => console.log('Connected ws!'),
-  //   onError(event) {
-  //     console.log('Connect ws failed:', event);
-  //   },
-  // });
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
 
-  // const connectionStatus = {
-  //   [ReadyState.CONNECTING]: 'Connecting',
-  //   [ReadyState.OPEN]: 'Open',
-  //   [ReadyState.CLOSING]: 'Closing',
-  //   [ReadyState.CLOSED]: 'Closed',
-  //   [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  // }[readyState];
+  useEffect(() => {
+    const dataLastMessage = lastMessage?.data;
 
-  // console.log('🚀 -> Notification -> connectionStatus:', connectionStatus);
+    if (!dataLastMessage) return;
 
-  // const ws = new WebSocket(`${setting.wsBaseUrl}?access_token=${user.unwrap().token}`, null, {
-  //   headers: {
-  //     ['ngrok-skip-browser-warning']: 'any value',
-  //     Origin: 'cookie',
-  //   },
-  // });
-  // console.log('🚀 -> ws -> ws:', ws);
+    const data = JSON.parse(dataLastMessage);
+
+    setCountUnread((prev) => prev + 1);
+
+    switch (data?.cmd) {
+      case 10:
+        notifyInfo('Bình luận', data?.params?.message);
+        break;
+      case 11:
+        notifyInfo('Người theo dõi', data?.params?.message);
+        break;
+      case 12:
+        notifyInfo('Bài viết', data?.params?.message);
+        break;
+      default:
+        console.log('default', data);
+        break;
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
+    console.log('🚀 connection Status:', connectionStatus);
+  }, [connectionStatus]);
+
+  // end handle ws
 
   const handleToggle = () => {
+    if (open === false) {
+      handleGetAllNotifications();
+      handleCountUnread();
+    }
     setOpen((prevOpen) => !prevOpen);
   };
 
@@ -290,7 +286,7 @@ function Notification() {
   useEffect(() => {
     handleGetAllNotifications();
     handleCountUnread();
-  }, [user]);
+  }, []);
 
   return (
     <div style={{ display: 'inline-block' }}>
