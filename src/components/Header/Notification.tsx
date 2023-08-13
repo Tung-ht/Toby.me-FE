@@ -72,53 +72,56 @@ function Notification() {
   const [countUnread, setCountUnread] = useState(0);
 
   // handle ws
-  const { lastMessage, readyState } = useWebSocket(`${setting.wsBaseUrl}`, {
-    queryParams: {
-      access_token: user.unwrap().token,
-    },
-    protocols: ['0'],
-    onOpen: () => console.log('Connected ws!'),
-    onError(event) {
-      console.log('Connect ws failed:', event);
-    },
-  });
-
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
 
   useEffect(() => {
-    const dataLastMessage = lastMessage?.data;
+    // Tạo kết nối WebSocket với headers
+    const socket = new WebSocket(`${setting.wsBaseUrl}?access_token=${user.unwrap().token}`);
 
-    if (!dataLastMessage) return;
+    // Xử lý các sự kiện kết nối WebSocket
+    socket.onopen = () => {
+      console.log('WebSocket connected');
+    };
 
-    const data = JSON.parse(dataLastMessage);
+    socket.onmessage = (event) => {
+      // console.log('Received message:', event.data);
 
-    setCountUnread((prev) => prev + 1);
+      const dataLastMessage = event.data;
 
-    switch (data?.cmd) {
-      case 10:
-        notifyInfo('Bình luận', data?.params?.message);
-        break;
-      case 11:
-        notifyInfo('Người theo dõi', data?.params?.message);
-        break;
-      case 12:
-        notifyInfo('Bài viết', data?.params?.message);
-        break;
-      default:
-        console.log('default', data);
-        break;
-    }
-  }, [lastMessage]);
+      if (!dataLastMessage) return;
 
-  useEffect(() => {
-    console.log('🚀 connection Status:', connectionStatus);
-  }, [connectionStatus]);
+      const data = JSON.parse(dataLastMessage);
+
+      switch (data?.cmd) {
+        case 10:
+          notifyInfo('Bình luận', data?.params?.message);
+          setCountUnread((prev) => prev + 1);
+          break;
+
+        case 11:
+          notifyInfo('Người theo dõi', data?.params?.message);
+          setCountUnread((prev) => prev + 1);
+          break;
+
+        case 12:
+          notifyInfo('Bài viết', data?.params?.message);
+          setCountUnread((prev) => prev + 1);
+          break;
+
+        default:
+          console.log('default', data);
+          break;
+      }
+    };
+
+    socket.onclose = (event) => {
+      console.log('WebSocket closed:', event.code, event.reason);
+    };
+
+    return () => {
+      // Đóng kết nối WebSocket khi component unmounts
+      socket.close();
+    };
+  }, [user]);
 
   // end handle ws
 
