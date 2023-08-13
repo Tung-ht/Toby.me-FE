@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Fragment } from 'react';
 import { HashRouter, Redirect, Route, RouteProps, Switch } from 'react-router-dom';
-import NotificationsSystem, { atalhoTheme, useNotifications } from 'reapop';
+import NotificationsSystem, { wyboTheme, useNotifications } from 'reapop';
 import { getUserLogin } from '../../services/services';
 import { store } from '../../state/store';
 import { useStoreWithInitializer } from '../../state/storeHooks';
@@ -30,7 +30,7 @@ export function App() {
       <NotificationsSystem
         notifications={notifications}
         dismissNotification={(id) => dismissNotification(id)}
-        theme={atalhoTheme}
+        theme={wyboTheme}
       />
       {!loading && (
         <Fragment>
